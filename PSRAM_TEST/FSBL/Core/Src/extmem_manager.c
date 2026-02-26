@@ -23,6 +23,7 @@
 #include <string.h>
 
 /* USER CODE BEGIN Includes */
+#include "stm32_extmem.h"
 #include "main.h"
 /* USER CODE END Includes */
 
@@ -89,7 +90,7 @@ void MX_EXTMEM_MANAGER_Init(void)
   extmem_list_config[1].Handle = (void*)&hxspi1;
   extmem_list_config[1].ConfigType = EXTMEM_LINK_CONFIG_16LINES;
 
-  extmem_list_config[1].PsramObject.psram_public.MemorySize = HAL_XSPI_SIZE_256MB;
+  extmem_list_config[1].PsramObject.psram_public.MemorySize = HAL_XSPI_SIZE_32MB;
   extmem_list_config[1].PsramObject.psram_public.FreqMax = 200 * 1000000u;
   extmem_list_config[1].PsramObject.psram_public.NumberOfConfig = 1u;
 

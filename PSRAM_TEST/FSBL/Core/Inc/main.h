@@ -66,8 +66,8 @@ typedef funcptr funcptr_NS;
 /* USER CODE BEGIN EM */
 #define CAMERA_IMX335_ADDRESS 0x34U
 
-//#define BUFFER_ADDRESS  0x34200000U
-#define BUFFER_ADDRESS  0x90000000U
+#define BUFFER_ADDRESS  0x34200000U
+//#define BUFFER_ADDRESS  0x90000000U
 
 //Meduim Sized Image
 #define BUFFER_HEIGHT 480U
@@ -94,19 +94,28 @@ extern void sdcard_test(void);
 extern void cam_test(void);
 #endif
 
+#ifdef LTE_TEST
+extern void lte_test(void);
+#endif
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
 #define I2C1_SDA_Pin GPIO_PIN_1
 #define I2C1_SDA_GPIO_Port GPIOC
+#define LTE_RST_Pin GPIO_PIN_15
+#define LTE_RST_GPIO_Port GPIOE
 #define PWR_EN_Pin GPIO_PIN_10
 #define PWR_EN_GPIO_Port GPIOD
+#define LTE_DTR_Pin GPIO_PIN_12
+#define LTE_DTR_GPIO_Port GPIOE
 #define CAM_EN_Pin GPIO_PIN_2
 #define CAM_EN_GPIO_Port GPIOD
 #define NRST_CAM_Pin GPIO_PIN_8
 #define NRST_CAM_GPIO_Port GPIOC
 #define I2CA_SCL_Pin GPIO_PIN_9
 #define I2CA_SCL_GPIO_Port GPIOH
+#define LTE_PWR_EN_Pin GPIO_PIN_6
+#define LTE_PWR_EN_GPIO_Port GPIOD
 #define TRACED1_Pin GPIO_PIN_0
 #define TRACED1_GPIO_Port GPIOB
 #define TRACED3_Pin GPIO_PIN_7
@@ -141,6 +150,8 @@ extern void cam_test(void);
 #define OCTOSPI_DQS_GPIO_Port GPION
 #define UCPD1_ISENSE_Pin GPIO_PIN_5
 #define UCPD1_ISENSE_GPIO_Port GPIOA
+#define LTE_PWR_KEY_Pin GPIO_PIN_1
+#define LTE_PWR_KEY_GPIO_Port GPIOG
 #define UCPD_PWR_EN_Pin GPIO_PIN_7
 #define UCPD_PWR_EN_GPIO_Port GPIOA
 #define OCTOSPI_IO1_Pin GPIO_PIN_3

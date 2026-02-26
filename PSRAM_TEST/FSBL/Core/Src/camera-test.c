@@ -52,7 +52,6 @@ CHAR filename[20];
 uint8_t fileindex = 0;
 
 UINT fxsd_status = FX_SUCCESS;
-uint8_t create_file = 0U;
 
 void cam_test(void){
 	    ISP_AppliHelpersTypeDef appliHelpers = {0};
@@ -73,16 +72,16 @@ void cam_test(void){
 			Error_Handler();
 		}
 
-//		if (HAL_DCMIPP_CSI_PIPE_Start(&hdcmipp, DCMIPP_PIPE1, DCMIPP_VIRTUAL_CHANNEL0 , BUFFER_ADDRESS, DCMIPP_MODE_CONTINUOUS) != HAL_OK)
-//		{
-//			Error_Handler();
-//		}
-//
-//		/* Start the Image Signal Processing */
-//		if (ISP_Start(&hIsp) != ISP_OK)
-//		{
-//			Error_Handler();
-//		}
+		if (HAL_DCMIPP_CSI_PIPE_Start(&hdcmipp, DCMIPP_PIPE1, DCMIPP_VIRTUAL_CHANNEL0 , BUFFER_ADDRESS, DCMIPP_MODE_CONTINUOUS) != HAL_OK)
+		{
+			Error_Handler();
+		}
+
+		/* Start the Image Signal Processing */
+		if (ISP_Start(&hIsp) != ISP_OK)
+		{
+			Error_Handler();
+		}
 //		while(1);
 		//Initial detection of card
 		if(!HAL_GPIO_ReadPin(SD_DET_GPIO_Port, SD_DET_Pin)){
@@ -113,8 +112,8 @@ void cam_test(void){
 
 			}
 
-			*((uint8_t *)BUFFER_ADDRESS) = 0xFFU;
-			printf("\r%lX", *((uint32_t *)BUFFER_ADDRESS));
+//			*((uint8_t *)BUFFER_ADDRESS) = 0xFFU;
+//			printf("\r%lX", *((uint32_t *)BUFFER_ADDRESS));
 
 			//SD-CARD logic
 		do{

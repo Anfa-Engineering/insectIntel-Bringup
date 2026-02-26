@@ -128,6 +128,10 @@ void HAL_XSPI_MspInit(XSPI_HandleTypeDef* xspiHandle)
   if(xspiHandle->Instance==XSPI1)
   {
   /* USER CODE BEGIN XSPI1_MspInit 0 */
+  /* XSPI power enable */
+  __HAL_RCC_PWR_CLK_ENABLE();
+  HAL_PWREx_EnableVddIO2(); // change, IO3 for XSPI2
+  HAL_PWREx_ConfigVddIORange(PWR_VDDIO2, PWR_VDDIO_RANGE_1V8);
 
   /* USER CODE END XSPI1_MspInit 0 */
 
@@ -198,6 +202,10 @@ void HAL_XSPI_MspInit(XSPI_HandleTypeDef* xspiHandle)
   else if(xspiHandle->Instance==XSPI2)
   {
   /* USER CODE BEGIN XSPI2_MspInit 0 */
+  /* XSPI power enable */
+  __HAL_RCC_PWR_CLK_ENABLE();
+  HAL_PWREx_EnableVddIO3(); // change, IO2 for XSPI1
+  HAL_PWREx_ConfigVddIORange(PWR_VDDIO3, PWR_VDDIO_RANGE_1V8);
 
   /* USER CODE END XSPI2_MspInit 0 */
 

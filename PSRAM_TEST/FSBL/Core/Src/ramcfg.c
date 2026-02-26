@@ -7,7 +7,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2026 STMicroelectronics.
+  * Copyright (c) 2025 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -38,11 +38,12 @@ void MX_RAMCFG_Init(void)
   /* USER CODE END RAMCFG_Init 0 */
 
   /* USER CODE BEGIN RAMCFG_Init 1 */
-
+//  LL_MEM_EnableClock(LL_MEM_AXISRAM2);
   LL_MEM_EnableClock(LL_MEM_AXISRAM3);
   LL_MEM_EnableClock(LL_MEM_AXISRAM4);
   LL_MEM_EnableClock(LL_MEM_AXISRAM5);
   LL_MEM_EnableClock(LL_MEM_AXISRAM6);
+
 
   /* USER CODE END RAMCFG_Init 1 */
 
@@ -79,10 +80,11 @@ void MX_RAMCFG_Init(void)
   }
   /* USER CODE BEGIN RAMCFG_Init 2 */
 
-//  HAL_RAMCFG_EnableAXISRAM(&hramcfg_SRAM3);
-//  HAL_RAMCFG_EnableAXISRAM(&hramcfg_SRAM4);
-//  HAL_RAMCFG_EnableAXISRAM(&hramcfg_SRAM5);
-//  HAL_RAMCFG_EnableAXISRAM(&hramcfg_SRAM6);
+  HAL_RAMCFG_EnableAXISRAM(&hramcfg_SRAM3);
+  HAL_RAMCFG_EnableAXISRAM(&hramcfg_SRAM4);
+  HAL_RAMCFG_EnableAXISRAM(&hramcfg_SRAM5);
+  HAL_RAMCFG_EnableAXISRAM(&hramcfg_SRAM6);
+
   /* USER CODE END RAMCFG_Init 2 */
 
 }
@@ -97,8 +99,6 @@ void HAL_RAMCFG_MspInit(RAMCFG_HandleTypeDef* ramcfgHandle)
     __HAL_RCC_RAMCFG_CLK_ENABLE();
   /* USER CODE BEGIN RAMCFG_MspInit 1 */
 
-    HAL_RAMCFG_EnableAXISRAM(ramcfgHandle);
-
   /* USER CODE END RAMCFG_MspInit 1 */
 }
 
@@ -111,7 +111,6 @@ void HAL_RAMCFG_MspDeInit(RAMCFG_HandleTypeDef* ramcfgHandle)
     /* Peripheral clock disable */
     __HAL_RCC_RAMCFG_CLK_DISABLE();
   /* USER CODE BEGIN RAMCFG_MspDeInit 1 */
-    HAL_RAMCFG_DisableAXISRAM(ramcfgHandle);
 
   /* USER CODE END RAMCFG_MspDeInit 1 */
 }
