@@ -94,8 +94,12 @@ extern void sdcard_test(void);
 extern void cam_test(void);
 #endif
 
-#ifdef LTE_TEST
+#ifdef LTE_TEST_UART
 extern void lte_test(void);
+#endif
+
+#ifdef LTE_TEST_USB
+extern void lte_test_usb(void);
 #endif
 /* USER CODE END EFP */
 

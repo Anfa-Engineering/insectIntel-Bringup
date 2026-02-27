@@ -18,7 +18,7 @@
 #include  <stdio.h>
 #include "usart.h"
 
-#ifdef LTE_TEST
+#ifdef LTE_TEST_UART
 #define RX_BUFFER_SIZE 128U
 
 uint8_t rx1_byte;

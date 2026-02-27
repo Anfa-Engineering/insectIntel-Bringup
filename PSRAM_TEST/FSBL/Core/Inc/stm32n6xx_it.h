@@ -61,6 +61,7 @@ void JPEG_IRQHandler(void);
 void I2C1_EV_IRQHandler(void);
 void I2C1_ER_IRQHandler(void);
 void USART1_IRQHandler(void);
+void USART3_IRQHandler(void);
 void XSPI1_IRQHandler(void);
 void SDMMC2_IRQHandler(void);
 void CSI_IRQHandler(void);

@@ -125,7 +125,7 @@ int main(void)
 	cam_test();
 	#endif
 
-	#ifdef LTE_TEST
+	#ifdef LTE_TEST_UART
 	lte_test();
 	#endif
 

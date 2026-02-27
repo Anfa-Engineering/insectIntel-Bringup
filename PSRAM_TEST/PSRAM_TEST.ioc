@@ -214,6 +214,7 @@ NVIC.SVCall_IRQn=true\:0\:0\:false\:false\:true\:false\:false\:false
 NVIC.SecureFault_IRQn=true\:0\:0\:false\:false\:true\:false\:false\:false
 NVIC.SysTick_IRQn=true\:15\:0\:false\:false\:true\:false\:true\:false
 NVIC.USART1_IRQn=true\:14\:0\:true\:false\:true\:true\:true\:true
+NVIC.USART3_IRQn=true\:14\:0\:true\:false\:true\:true\:true\:true
 NVIC.UsageFault_IRQn=true\:0\:0\:false\:false\:true\:false\:false\:false
 NVIC.XSPI1_IRQn=true\:0\:0\:false\:false\:true\:true\:true\:true
 NVIC1.BFHFNMINS=0
