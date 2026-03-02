@@ -64,6 +64,7 @@ void USART1_IRQHandler(void);
 void USART3_IRQHandler(void);
 void XSPI1_IRQHandler(void);
 void SDMMC2_IRQHandler(void);
+void USB1_OTG_HS_IRQHandler(void);
 void CSI_IRQHandler(void);
 void IAC_IRQHandler(void);
 /* USER CODE BEGIN EFP */
