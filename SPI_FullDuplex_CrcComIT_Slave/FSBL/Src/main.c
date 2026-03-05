@@ -173,12 +173,17 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 
 
-  if (HAL_SPI_TransmitReceive_DMA(&hspi5, (uint8_t *)&aTxBuffer[0], (uint8_t *)&aTxBuffer[1], 16U) != HAL_OK)
+  if (HAL_SPI_TransmitReceive_DMA(&hspi5, (uint8_t *)&aTxBuffer[0], (uint8_t *)&aRxBuffer[0], 16U) != HAL_OK)
    {
      /* Transfer error in transmission process */
      Error_Handler();
    }
 
+//  if (HAL_SPI_TransmitReceive_IT(&hspi5, (uint8_t *)&aTxBuffer[0], (uint8_t *)&aRxBuffer[0], 16U) != HAL_OK)
+//   {
+//     /* Transfer error in transmission process */
+//     Error_Handler();
+//   }
 
  volatile uint8_t i;
   while (1){
@@ -195,6 +200,20 @@ int main(void)
 			break;
 
 		case RECEIVE_TRANSMIT_COMPLETE:
+			wTransferState = RECEIVE_WAIT;
+
+			memset(aRxBuffer, 0, sizeof(aRxBuffer));
+//		  if (HAL_SPI_TransmitReceive_IT(&hspi5, (uint8_t *)&aTxBuffer[0], (uint8_t *)&aRxBuffer[0], 16U) != HAL_OK)
+//		   {
+//			 /* Transfer error in transmission process */
+//			 Error_Handler();
+//		   }
+
+		  if (HAL_SPI_TransmitReceive_DMA(&hspi5, (uint8_t *)&aTxBuffer[0], (uint8_t *)&aRxBuffer[0], 16U) != HAL_OK)
+		   {
+			 /* Transfer error in transmission process */
+			 Error_Handler();
+		   }
 			HAL_GPIO_WritePin(GREEN_LED_GPIO_Port, GREEN_LED_Pin, GPIO_PIN_SET);
 
 			break;
