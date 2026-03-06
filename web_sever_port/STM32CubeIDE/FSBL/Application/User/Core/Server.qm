@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model version="7.0.2" links="1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.state-machine.com/qm/qm7.xsd">
+ <documentation>About this example:
+-------------------
+Simple &quot;Blinky&quot; console application for workstations (Windows, Linux, MacOS)
+(see &quot;QM Tutorial&quot; at: https://www.state-machine.com/qm/gs_tut.html)
+
+This example demonstrates:
+- Active object (Blinky) with state machine
+- Board Support Package abstraction for portability
+- BSP implementation for desktop OS (Windows, Linux, MacOS)
+- Platform-independent main() function
+- Makefile to build the generated code on desktop OS (Windows, Linux, MacOS)
+- Customized tools for building the generated code directly from QM
+
+Building the example:
+---------------------
+To build this example, you will need the QP/C framework installed on your
+computer and the GNU-GCC compiler. Both of them will be available if you
+install the QP-bundle from:
+
+https://www.state-machine.com/#Downloads
+
+Running the example:
+--------------------
+This example is a simple console application, which you can run from a terminal.
+
+For more QM examples for QP/C see:
+https://www.state-machine.com/qpc/exa.html</documentation>
+ <!--${qpc}-->
+ <framework name="qpc"/>
+ <!--${Shared}-->
+ <package name="Shared" stereotype="0x00">
+  <!--${Shared::SeverSignals}-->
+  <attribute name="SeverSignals" type="enum" visibility="0x04" properties="0x00">
+   <code>{
+    TIMEOUT_SIG = Q_USER_SIG,
+    MAX_PUB_SIG,
+    SERVER_START_SIG,
+    ST67_INIT_FAIL_SIG,
+    SERVER_LISTEN_SIG,
+    SERVER_LISTEN_CALLBACK_SIG,
+    SERVER_STOP_SIG
+};</code>
+  </attribute>
+  <!--${Shared::AO_Server}-->
+  <attribute name="AO_Server" type="QActive * const" visibility="0x00" properties="0x00">
+   <code>= &amp;Server_inst.super;</code>
+  </attribute>
+  <!--${Shared::Server_ctor}-->
+  <operation name="Server_ctor" type="void" visibility="0x00" properties="0x01">
+   <documentation>The Blinky &quot;constructor&quot; is provided outside of the Blinky class, so that it can be used independently from the class. This is part of the &quot;opaque pointer&quot; design idiom.</documentation>
+   <code>Server * const me = &amp;Server_inst;
+QActive_ctor(&amp;me-&gt;super, Q_STATE_CAST(&amp;Server_initial));
+QTimeEvt_ctorX(&amp;me-&gt;timeEvt, &amp;me-&gt;super, TIMEOUT_SIG, 0U);</code>
+  </operation>
+ </package>
+ <!--${AOs}-->
+ <package name="AOs" stereotype="0x02">
+  <!--${AOs::Server}-->
+  <class name="Server" superclass="qpc::QActive">
+   <!--${AOs::Server::timeEvt}-->
+   <attribute name="timeEvt" type="QTimeEvt" visibility="0x02" properties="0x00"/>
+   <!--${AOs::Server::inst}-->
+   <attribute name="inst" type="Server" visibility="0x00" properties="0x01"/>
+   <!--${AOs::Server::SM}-->
+   <statechart properties="0x03">
+    <documentation>Blinky state machine</documentation>
+    <!--${AOs::Server::SM::initial}-->
+    <initial target="../1">
+     <action>(void)par; // unused parameter
+
+
+//QTimeEvt_armX(&amp;me-&gt;timeEvt,
+//BSP_TICKS_PER_SEC/2, BSP_TICKS_PER_SEC/2);</action>
+     <initial_glyph color="3" conn="46,9,5,1,-17">
+      <action box="-8,-3,19,2"/>
+     </initial_glyph>
+    </initial>
+    <!--${AOs::Server::SM::down}-->
+    <state name="down">
+     <entry brief="poweredDown">HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_RESET);
+
+//Create the initial start  event for the server
+QACTIVE_POST(AO_Server, Q_NEW(QEvt, SERVER_START_SIG), (void)0U);
+</entry>
+     <exit>//HAL_GPIO_WritePin(LED_RED_GPIO_Port, LED_RED_Pin, GPIO_PIN_SET);
+</exit>
+     <!--${AOs::Server::SM::down::SERVER_START}-->
+     <tran trig="SERVER_START" target="../../2">
+      <action>//ASSERT THE cHIP ENABLE GPIO PIN
+HAL_GPIO_WritePin(CHIP_EN_GPIO_Port, CHIP_EN_Pin, GPIO_PIN_SET);
+</action>
+      <tran_glyph color="1" conn="29,16,1,1,21,21,-19">
+       <action box="1,1,14,2"/>
+      </tran_glyph>
+     </tran>
+     <state_glyph node="2,6,27,21">
+      <entry box="0,3,13,2"/>
+      <exit box="0,5,14,2"/>
+     </state_glyph>
+    </state>
+    <!--${AOs::Server::SM::up}-->
+    <state name="up">
+     <entry brief="poweredUp">HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_SET);
+
+//Initialise the wifi module, LWIP networkstack, logging system and the shell service
+main_app();</entry>
+     <!--${AOs::Server::SM::up::SERVER_STOP}-->
+     <tran trig="SERVER_STOP" target="../../1">
+      <tran_glyph color="1" conn="3,48,3,1,43,-37,-17">
+       <action box="0,-3,14,2"/>
+      </tran_glyph>
+     </tran>
+     <!--${AOs::Server::SM::up::ST67_INIT_FAIL}-->
+     <tran trig="ST67_INIT_FAIL" target="../../1">
+      <action>  LogInfo(&quot;##### Wifi init failure end\n&quot;);
+</action>
+      <tran_glyph conn="31,44,1,1,27,-30,-29">
+       <action box="0,-2,14,2"/>
+      </tran_glyph>
+     </tran>
+     <!--${AOs::Server::SM::up::SERVER_LISTEN}-->
+     <tran trig="SERVER_LISTEN">
+      <action>LogInfo(&quot;##### WE ARE GOOD TO GO –🫡🫡\n&quot;);
+</action>
+      <tran_glyph conn="3,38,3,-1,11">
+       <action box="0,-2,18,2"/>
+      </tran_glyph>
+     </tran>
+     <state_glyph color="2" node="3,30,28,20">
+      <entry box="0,3,14,2"/>
+     </state_glyph>
+    </state>
+    <state_diagram size="75,56"/>
+   </statechart>
+  </class>
+ </package>
+ <!--${..\Appli\App}-->
+ <directory name="..\Appli\App">
+  <!--${..\Appli\App::HttpServer.c}-->
+  <file name="HttpServer.c">
+   <text>#include &quot;main.h&quot;
+#include &quot;qpc.h&quot;
+
+#include &quot;main_app.h&quot;
+#include &quot;HttpServer.h&quot;
+
+#include &quot;logging.h&quot;
+
+$declare ${AOs}
+
+
+$define ${Shared}
+
+
+$define ${AOs}
+</text>
+  </file>
+  <!--${..\Appli\App::HttpServer.h}-->
+  <file name="HttpServer.h">
+   <text>#ifndef shared_H_
+#define shared_H_
+
+/** Priority of the user pins polling task */
+#define PIN_POLLING_THREAD_PRIO        30
+
+/** Stack size of the user pins polling task */
+#define PIN_POLLING_TASK_STACK_SIZE    512
+
+/** Priority of the web server child task */
+#define WEBSERVER_CHILD_THREAD_PRIO    29
+
+/** Stack size of the web server child task */
+#define HTTP_CHILD_TASK_STACK_SIZE     2048
+
+/** HTTP server port */
+#define HTTP_PORT                      80
+
+/** Socket timeout in ms */
+#define SOCKET_TIMEOUT_MS              1000
+
+/** Event flag for pin status update */
+#define EVENT_FLAG_PIN                 (1&lt;&lt;1)
+
+/** Timeout for the pin status update in ms */
+#define PIN_TIMEOUT_MS                 9000
+
+/** Buffer size for the child task */
+#define HTTP_CHILD_TASK_BUFFER_SIZE    1024
+
+/** Maximum bytes to send in one step */
+#define MAX_BYTES_TO_SEND              4096
+
+/** the sever's queue lengthp */
+#define SERVER_QUEUE_EN                5U
+
+/** the sever's priority */
+#define SERVER_TASK_PRIORITY           24
+
+/** the sever's priority */
+#define SERVER_TASK_STACK_SIZE         4096
+
+
+$declare ${Shared}
+
+
+#endif // DPP_H_</text>
+  </file>
+ </directory>
+</model>
