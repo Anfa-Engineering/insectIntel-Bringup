@@ -105,6 +105,7 @@ int main(void)
   MX_GPDMA1_Init();
   MX_SPI5_Init();
   MX_USART1_UART_Init();
+  MX_SPI4_Init();
   MX_ST67W6X_Init();
   SystemIsolation_Config();
   /* USER CODE BEGIN 2 */
@@ -270,12 +271,12 @@ void SystemClock_Config(void)
   /* RIF-Aware IPs Config */
 
   /* set up GPDMA configuration */
-  /* set GPDMA1 channel 10 used by SPI5 */
+  /* set GPDMA1 channel 10 used by SPI4 */
   if (HAL_DMA_ConfigChannelAttributes(&handle_GPDMA1_Channel10,DMA_CHANNEL_SEC|DMA_CHANNEL_PRIV|DMA_CHANNEL_SRC_SEC|DMA_CHANNEL_DEST_SEC)!= HAL_OK )
   {
     Error_Handler();
   }
-  /* set GPDMA1 channel 11 used by SPI5 */
+  /* set GPDMA1 channel 11 used by SPI4 */
   if (HAL_DMA_ConfigChannelAttributes(&handle_GPDMA1_Channel11,DMA_CHANNEL_SEC|DMA_CHANNEL_PRIV|DMA_CHANNEL_SRC_SEC|DMA_CHANNEL_DEST_SEC)!= HAL_OK )
   {
     Error_Handler();

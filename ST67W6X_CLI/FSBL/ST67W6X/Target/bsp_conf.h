@@ -41,7 +41,7 @@ extern "C" {
 #define UART_HANDLE                             huart1
 
 /** Interfaces the SPI instance to be used for NCP communication */
-#define NCP_SPI_HANDLE                          hspi5
+#define NCP_SPI_HANDLE                          hspi4
 
 /* USER CODE BEGIN EC */
 
