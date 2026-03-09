@@ -72,6 +72,22 @@ typedef enum
 
 /* USER CODE BEGIN EC */
 
+/** SSID of the Soft-AP */
+#define WIFI_SAP_SSID               "AnfaEng"
+
+/** Password of the Soft-AP */
+#define WIFI_SAP_PASSWORD           "12345678"
+
+/** Channel of the Soft-AP */
+#define WIFI_SAP_CHANNEL            1
+
+/** Max station to be connected to the Soft-AP */
+#define WIFI_SAP_MAX_CONNECTIONS    4
+
+/** Low power configuration [0: disable / 1: sleep / 2: stop / 3: standby] */
+#define LOW_POWER_MODE              LOW_POWER_DISABLE
+
+
 /* USER CODE END EC */
 
 #ifdef __cplusplus

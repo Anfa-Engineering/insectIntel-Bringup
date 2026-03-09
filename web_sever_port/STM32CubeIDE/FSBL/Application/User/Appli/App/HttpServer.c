@@ -35,13 +35,46 @@
 // <info@state-machine.com>
 //
 //$endhead${..\Appli\App::HttpServer.c} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#include <string.h>
+#include <inttypes.h>
+
 #include "main.h"
 #include "qpc.h"
+#include "FreeRTOS.h"
+#include "w6x_api.h"
+#include "logging.h"
 
+#include "common_parser.h" /* Common Parser functions */
+#include "shell.h"
+
+#include "app_config.h"
 #include "main_app.h"
 #include "HttpServer.h"
+#include "HttpService.h"
+#include "event_groups.h"
 
-#include "logging.h"
+/** Priority of the user pins polling task */
+#define PIN_POLLING_THREAD_PRIO        30
+
+/** Stack size of the user pins polling task */
+#define PIN_POLLING_TASK_STACK_SIZE    512
+
+/** Priority of the web server child task */
+#define WEBSERVER_CHILD_THREAD_PRIO    29
+
+/** Stack size of the web server child task */
+#define HTTP_CHILD_TASK_STACK_SIZE     2048
+
+/** HTTP server port */
+#define HTTP_PORT                      80
+
+/** Socket timeout in ms */
+#define SOCKET_TIMEOUT_MS              1000
+
+/** Maximum bytes to send in one step */
+#define MAX_BYTES_TO_SEND              4096
+
+extern EventGroupHandle_t pin_handle;
 
 //$declare${AOs} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
@@ -54,6 +87,19 @@ typedef struct Server {
     QTimeEvt timeEvt;
 
 // public:
+
+// private:
+    int32_t ret;
+    int32_t sock;
+    struct sockaddr_in s_addr_in_t;
+    uint8_t ip_addr[4];
+
+// public:
+    uint8_t netmask_addr[4];
+
+// private:
+    int32_t timeout;
+    int32_t fct_start;
 } Server;
 
 extern Server Server_inst;
@@ -169,8 +215,180 @@ static QState Server_up(Server * const me, QEvt const * const e) {
         }
         //${AOs::Server::SM::up::SERVER_LISTEN}
         case SERVER_LISTEN_SIG: {
-            LogInfo("##### WE ARE GOOD TO GO –🫡🫡\n");
+            //if(me->sock > 0 && !me->ret){
+                /*Just listen for incomming connection requests on the socket*/
+                //goto _listen;
 
+            //}
+
+            LogInfo("##### WE ARE GOOD TO GO –🫡🫡\n");
+            W6X_WiFi_ApConfig_t ap_config = {0};
+
+            /* Start soft-AP */
+            ap_config.Channel = WIFI_SAP_CHANNEL;
+            ap_config.Security = W6X_WIFI_AP_SECURITY_WPA3_PSK;
+            ap_config.MaxConnections = WIFI_SAP_MAX_CONNECTIONS;
+            ap_config.Protocol = W6X_WIFI_PROTOCOL_11AX;
+            strncpy((char *)ap_config.SSID, WIFI_SAP_SSID, W6X_WIFI_MAX_SSID_SIZE);
+            strncpy((char *)ap_config.Password, WIFI_SAP_PASSWORD, W6X_WIFI_MAX_PASSWORD_SIZE);
+            me->ret = W6X_WiFi_AP_Start(&ap_config);
+
+            if (me->ret)
+            {
+                LogError("Failed to start soft-AP, %" PRIi32 "\n", me->ret);
+                goto _err;
+            }
+            else
+            {
+                LogInfo("Soft-AP started\n");
+            }
+
+            /* Get the soft-AP current IP address */
+            me->ret = W6X_Net_AP_GetIPAddress(me->ip_addr, me->netmask_addr);
+
+            if (me->ret != W6X_STATUS_OK)
+            {
+                LogError("Get soft-AP IP failed\n");
+                goto _err;
+            }
+
+            LogInfo("Soft-AP IP address : " IPSTR "\n", IP2STR(me->ip_addr));
+            me->s_addr_in_t.sin_addr.s_addr = ATON(me->ip_addr);
+            me->s_addr_in_t.sin_port = PP_HTONS(HTTP_PORT);
+            me->s_addr_in_t.sin_family = AF_INET;
+
+
+            /* Create a new TCP server socket with port HTTP_PORT */
+            me->sock = W6X_Net_Socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+            if (me->sock < 0)
+            {
+                LogInfo("Could not create the socket.\n");
+                me->ret= W6X_STATUS_OK + 1;
+                goto _err;
+            }
+
+
+            //_sock_config:
+                /* Socket present*/
+
+                /* Set the socket Receive timeout option */
+                me->ret = W6X_Net_Setsockopt(me->sock, SOL_SOCKET, SO_RCVTIMEO, (void *)&me->timeout, sizeof(me->timeout));
+                if (me->ret != 0)
+                {
+                    LogError("Could not set the socket options.\n");
+                    goto _err;
+                }
+
+                /* Set the socket Send timeout option */
+                me->ret = W6X_Net_Setsockopt(me->sock, SOL_SOCKET, SO_SNDTIMEO, (void *)&me->timeout, sizeof(me->timeout));
+                if (me->ret != 0)
+                {
+                    LogError("Could not set the socket options.\n");
+                    goto _err;
+                }
+
+                /* Set the socket Send timeout option */
+                me->ret = W6X_Net_Setsockopt(me->sock, SOL_SOCKET, SO_KEEPALIVE, (void *)&me->timeout, sizeof(me->timeout));
+                if (me->ret != 0)
+                {
+                    LogError("Could not set the socket options.\n");
+                    goto _err;
+                }
+
+                /* Bind the socket to the server address */
+                me->ret = W6X_Net_Bind(me->sock, (struct sockaddr *)&me->s_addr_in_t, sizeof(me->s_addr_in_t));
+
+                if (me->ret != 0)
+                {
+                    LogInfo("\n LwIP Bind Fail\n");
+                    goto _err;
+                }
+
+                LogInfo("\n LwIP Bind Pass\n");
+
+            //_listen:
+                /* Listen for incoming connections (TCP listen backlog = 5). */
+                me->ret = W6X_Net_Listen(me->sock, 5);
+
+                if (me->ret != 0)
+                {
+                    LogInfo("\n LwIP Listen Fail\n");
+                    goto _err;
+                }
+
+                LogInfo("\n LwIP Listening\n");
+
+              /* Creation of a thread to check if the pin value of the button or the LEDs has change */
+              pin_handle = xEventGroupCreate();
+              if (pdPASS != xTaskCreate((TaskFunction_t)pin_verification_task, "UserPinsPolling",
+                                        PIN_POLLING_TASK_STACK_SIZE >> 2,
+                                        &me->fct_start, PIN_POLLING_THREAD_PRIO, NULL))
+              {
+                LogInfo("User pins task creation failed\n");
+                goto _err;
+              }
+
+
+              while (1)
+              {
+                struct sockaddr remotehost_t;
+                uint32_t remotehost_size = sizeof(remotehost_t);
+
+                /* Wait for an incoming client connection */
+                int32_t newconn = W6X_Net_Accept(me->sock, (struct sockaddr *)&remotehost_t, (socklen_t *)&remotehost_size);
+                if (newconn < 0)
+                {
+                  vTaskDelay(200);
+                  LogInfo("\n Failed to accept new client requests.\n");
+                }
+                else
+                {
+                  /* Create a temporary thread to process the incoming HTTP request */
+                  char thread_name[14];
+                  const size_t thread_name_len = sizeof(thread_name);
+                  snprintf(thread_name, thread_name_len, "HTTP_%08" PRIX32, newconn);
+                  thread_name[thread_name_len - 1] = '\0';
+
+                  LogDebug("\n Creation of temporary thread to process an incoming HTTP request : %" PRIi32 "\n", newconn);
+                  if (pdPASS != xTaskCreate((TaskFunction_t)http_server_serve_task, thread_name,
+                                            HTTP_CHILD_TASK_STACK_SIZE >> 2,
+                                            &newconn, WEBSERVER_CHILD_THREAD_PRIO, NULL))
+                  {
+                    LogInfo("%s task creation failed\n", thread_name);
+                  }
+                  /* Delay added to avoid that too many requests are processed in parallel */
+                  vTaskDelay(50);
+                }
+              }
+
+
+
+            _err:
+              /* Error case 1*/
+              if ((me->sock >= 0) && (W6X_Net_Shutdown(me->sock, 1) != W6X_STATUS_OK))
+              {
+                LogError("Failed to close server socket\n");
+
+              }else{
+                LogInfo("Socket closed\n");
+
+              }
+
+                /* De-initialize the ST67W6X Network module */
+                W6X_Net_DeInit();
+
+                /* De-initialize the ST67W6X Wi-Fi module */
+                W6X_WiFi_DeInit();
+
+                /* De-initialize the ST67W6X Driver */
+                W6X_DeInit();
+
+                shell_freertos_deinit();
+
+                LogInfo("##### Sever Application end\n");
+
+                //Create the initial start  event for the server
+                QACTIVE_POST(AO_Server, Q_NEW(QEvt, ST67_INIT_FAIL_SIG), (void)0U);
             status_ = Q_HANDLED();
             break;
         }

@@ -51,6 +51,7 @@
 
 /* Global variables ----------------------------------------------------------*/
 /* USER CODE BEGIN GV */
+uint8_t button_changed = 0;
 
 /* USER CODE END GV */
 
@@ -263,6 +264,13 @@ void HAL_GPIO_EXTI_Falling_Callback(uint16_t pin)
     spi_on_header_ack();
   }
   /* USER CODE BEGIN EXTI_Falling_Callback_End */
+  /* Callback when user button is pressed */
+  if (pin == USER_BUTTON_Pin)
+  {
+    button_changed++;
+    button_changed %= 2;
+  }
+
 #else
 #endif /* 1 */
   /* USER CODE END EXTI_Falling_Callback_End */

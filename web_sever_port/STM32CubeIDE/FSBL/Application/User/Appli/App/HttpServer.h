@@ -35,8 +35,8 @@
 // <info@state-machine.com>
 //
 //$endhead${..\Appli\App::HttpServer.h} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-#ifndef shared_H_
-#define shared_H_
+#ifndef HttpServer_H_
+#define HttpServer_H_
 
 /** Priority of the user pins polling task */
 #define PIN_POLLING_THREAD_PRIO        30
@@ -55,15 +55,6 @@
 
 /** Socket timeout in ms */
 #define SOCKET_TIMEOUT_MS              1000
-
-/** Event flag for pin status update */
-#define EVENT_FLAG_PIN                 (1<<1)
-
-/** Timeout for the pin status update in ms */
-#define PIN_TIMEOUT_MS                 9000
-
-/** Buffer size for the child task */
-#define HTTP_CHILD_TASK_BUFFER_SIZE    1024
 
 /** Maximum bytes to send in one step */
 #define MAX_BYTES_TO_SEND              4096
@@ -99,4 +90,4 @@ void Server_ctor(void);
 //$enddecl${Shared} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
-#endif // DPP_H_
+#endif

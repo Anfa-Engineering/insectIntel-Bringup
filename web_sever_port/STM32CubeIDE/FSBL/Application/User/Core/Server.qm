@@ -63,6 +63,31 @@ QTimeEvt_ctorX(&amp;me-&gt;timeEvt, &amp;me-&gt;super, TIMEOUT_SIG, 0U);</code>
    <attribute name="timeEvt" type="QTimeEvt" visibility="0x02" properties="0x00"/>
    <!--${AOs::Server::inst}-->
    <attribute name="inst" type="Server" visibility="0x00" properties="0x01"/>
+   <!--${AOs::Server::ret}-->
+   <attribute name="ret" type="int32_t" visibility="0x02" properties="0x00">
+    <documentation>Return value of st67w61 middle ware </documentation>
+    <code>=0;</code>
+   </attribute>
+   <!--${AOs::Server::sock}-->
+   <attribute name="sock" type="int32_t" visibility="0x02" properties="0x00">
+    <code>=-1;</code>
+   </attribute>
+   <!--${AOs::Server::s_addr_in_t}-->
+   <attribute name="s_addr_in_t" type="struct sockaddr_in" visibility="0x02" properties="0x00">
+    <code>={ 0 };</code>
+   </attribute>
+   <!--${AOs::Server::ip_addr[4]}-->
+   <attribute name="ip_addr[4]" type="uint8_t" visibility="0x02" properties="0x00"/>
+   <!--${AOs::Server::netmask_addr[4]}-->
+   <attribute name="netmask_addr[4]" type="uint8_t" visibility="0x00" properties="0x00"/>
+   <!--${AOs::Server::timeout}-->
+   <attribute name="timeout" type="int32_t" visibility="0x02" properties="0x00">
+    <code>(int32_t)pdMS_TO_TICKS(SOCKET_TIMEOUT_MS);</code>
+   </attribute>
+   <!--${AOs::Server::fct_start}-->
+   <attribute name="fct_start" type="int32_t" visibility="0x02" properties="0x00">
+    <code>= 9;</code>
+   </attribute>
    <!--${AOs::Server::SM}-->
    <statechart properties="0x03">
     <documentation>Blinky state machine</documentation>
@@ -91,7 +116,7 @@ QACTIVE_POST(AO_Server, Q_NEW(QEvt, SERVER_START_SIG), (void)0U);
       <action>//ASSERT THE cHIP ENABLE GPIO PIN
 HAL_GPIO_WritePin(CHIP_EN_GPIO_Port, CHIP_EN_Pin, GPIO_PIN_SET);
 </action>
-      <tran_glyph color="1" conn="29,16,1,1,21,21,-19">
+      <tran_glyph color="1" conn="29,16,1,1,36,21,-22">
        <action box="1,1,14,2"/>
       </tran_glyph>
      </tran>
@@ -108,7 +133,7 @@ HAL_GPIO_WritePin(CHIP_EN_GPIO_Port, CHIP_EN_Pin, GPIO_PIN_SET);
 main_app();</entry>
      <!--${AOs::Server::SM::up::SERVER_STOP}-->
      <tran trig="SERVER_STOP" target="../../1">
-      <tran_glyph color="1" conn="3,48,3,1,43,-37,-17">
+      <tran_glyph color="1" conn="43,34,1,1,16,-23,-30">
        <action box="0,-3,14,2"/>
       </tran_glyph>
      </tran>
@@ -116,23 +141,195 @@ main_app();</entry>
      <tran trig="ST67_INIT_FAIL" target="../../1">
       <action>  LogInfo(&quot;##### Wifi init failure end\n&quot;);
 </action>
-      <tran_glyph conn="31,44,1,1,27,-30,-29">
+      <tran_glyph conn="43,44,1,1,27,-30,-41">
        <action box="0,-2,14,2"/>
       </tran_glyph>
      </tran>
      <!--${AOs::Server::SM::up::SERVER_LISTEN}-->
      <tran trig="SERVER_LISTEN">
-      <action>LogInfo(&quot;##### WE ARE GOOD TO GO –🫡🫡\n&quot;);
-</action>
+      <action>//if(me-&gt;sock &gt; 0 &amp;&amp; !me-&gt;ret){
+    /*Just listen for incomming connection requests on the socket*/
+    //goto _listen;
+
+//}
+
+LogInfo(&quot;##### WE ARE GOOD TO GO –🫡🫡\n&quot;);
+W6X_WiFi_ApConfig_t ap_config = {0};
+
+/* Start soft-AP */
+ap_config.Channel = WIFI_SAP_CHANNEL;
+ap_config.Security = W6X_WIFI_AP_SECURITY_WPA3_PSK;
+ap_config.MaxConnections = WIFI_SAP_MAX_CONNECTIONS;
+ap_config.Protocol = W6X_WIFI_PROTOCOL_11AX;
+strncpy((char *)ap_config.SSID, WIFI_SAP_SSID, W6X_WIFI_MAX_SSID_SIZE);
+strncpy((char *)ap_config.Password, WIFI_SAP_PASSWORD, W6X_WIFI_MAX_PASSWORD_SIZE);
+me-&gt;ret = W6X_WiFi_AP_Start(&amp;ap_config);
+
+if (me-&gt;ret)
+{
+    LogError(&quot;Failed to start soft-AP, %&quot; PRIi32 &quot;\n&quot;, me-&gt;ret);
+    goto _err;
+}
+else
+{
+    LogInfo(&quot;Soft-AP started\n&quot;);
+}
+
+/* Get the soft-AP current IP address */
+me-&gt;ret = W6X_Net_AP_GetIPAddress(me-&gt;ip_addr, me-&gt;netmask_addr);
+
+if (me-&gt;ret != W6X_STATUS_OK)
+{
+    LogError(&quot;Get soft-AP IP failed\n&quot;);
+    goto _err;
+}
+
+LogInfo(&quot;Soft-AP IP address : &quot; IPSTR &quot;\n&quot;, IP2STR(me-&gt;ip_addr));
+me-&gt;s_addr_in_t.sin_addr.s_addr = ATON(me-&gt;ip_addr);
+me-&gt;s_addr_in_t.sin_port = PP_HTONS(HTTP_PORT);
+me-&gt;s_addr_in_t.sin_family = AF_INET;
+
+
+/* Create a new TCP server socket with port HTTP_PORT */
+me-&gt;sock = W6X_Net_Socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+if (me-&gt;sock &lt; 0)
+{
+    LogInfo(&quot;Could not create the socket.\n&quot;);
+    me-&gt;ret= W6X_STATUS_OK + 1;
+    goto _err;
+}
+
+
+//_sock_config:
+    /* Socket present*/
+
+    /* Set the socket Receive timeout option */
+    me-&gt;ret = W6X_Net_Setsockopt(me-&gt;sock, SOL_SOCKET, SO_RCVTIMEO, (void *)&amp;me-&gt;timeout, sizeof(me-&gt;timeout));
+    if (me-&gt;ret != 0)
+    {
+        LogError(&quot;Could not set the socket options.\n&quot;);
+        goto _err;
+    }
+
+    /* Set the socket Send timeout option */
+    me-&gt;ret = W6X_Net_Setsockopt(me-&gt;sock, SOL_SOCKET, SO_SNDTIMEO, (void *)&amp;me-&gt;timeout, sizeof(me-&gt;timeout));
+    if (me-&gt;ret != 0)
+    {
+        LogError(&quot;Could not set the socket options.\n&quot;);
+        goto _err;
+    }
+
+    /* Set the socket Send timeout option */
+    me-&gt;ret = W6X_Net_Setsockopt(me-&gt;sock, SOL_SOCKET, SO_KEEPALIVE, (void *)&amp;me-&gt;timeout, sizeof(me-&gt;timeout));
+    if (me-&gt;ret != 0)
+    {
+        LogError(&quot;Could not set the socket options.\n&quot;);
+        goto _err;
+    }
+
+    /* Bind the socket to the server address */
+    me-&gt;ret = W6X_Net_Bind(me-&gt;sock, (struct sockaddr *)&amp;me-&gt;s_addr_in_t, sizeof(me-&gt;s_addr_in_t));
+
+    if (me-&gt;ret != 0)
+    {
+        LogInfo(&quot;\n LwIP Bind Fail\n&quot;);
+        goto _err;
+    }
+
+    LogInfo(&quot;\n LwIP Bind Pass\n&quot;);
+
+//_listen:
+    /* Listen for incoming connections (TCP listen backlog = 5). */
+    me-&gt;ret = W6X_Net_Listen(me-&gt;sock, 5);
+
+    if (me-&gt;ret != 0)
+    {
+        LogInfo(&quot;\n LwIP Listen Fail\n&quot;);
+        goto _err;
+    }
+
+    LogInfo(&quot;\n LwIP Listening\n&quot;);
+
+  /* Creation of a thread to check if the pin value of the button or the LEDs has change */
+  pin_handle = xEventGroupCreate();
+  if (pdPASS != xTaskCreate((TaskFunction_t)pin_verification_task, &quot;UserPinsPolling&quot;,
+                            PIN_POLLING_TASK_STACK_SIZE &gt;&gt; 2,
+                            &amp;me-&gt;fct_start, PIN_POLLING_THREAD_PRIO, NULL))
+  {
+    LogInfo(&quot;User pins task creation failed\n&quot;);
+    goto _err;
+  }
+
+
+  while (1)
+  {
+    struct sockaddr remotehost_t;
+    uint32_t remotehost_size = sizeof(remotehost_t);
+
+    /* Wait for an incoming client connection */
+    int32_t newconn = W6X_Net_Accept(me-&gt;sock, (struct sockaddr *)&amp;remotehost_t, (socklen_t *)&amp;remotehost_size);
+    if (newconn &lt; 0)
+    {
+      vTaskDelay(200);
+      LogInfo(&quot;\n Failed to accept new client requests.\n&quot;);
+    }
+    else
+    {
+      /* Create a temporary thread to process the incoming HTTP request */
+      char thread_name[14];
+      const size_t thread_name_len = sizeof(thread_name);
+      snprintf(thread_name, thread_name_len, &quot;HTTP_%08&quot; PRIX32, newconn);
+      thread_name[thread_name_len - 1] = '\0';
+
+      LogDebug(&quot;\n Creation of temporary thread to process an incoming HTTP request : %&quot; PRIi32 &quot;\n&quot;, newconn);
+      if (pdPASS != xTaskCreate((TaskFunction_t)http_server_serve_task, thread_name,
+                                HTTP_CHILD_TASK_STACK_SIZE &gt;&gt; 2,
+                                &amp;newconn, WEBSERVER_CHILD_THREAD_PRIO, NULL))
+      {
+        LogInfo(&quot;%s task creation failed\n&quot;, thread_name);
+      }
+      /* Delay added to avoid that too many requests are processed in parallel */
+      vTaskDelay(50);
+    }
+  }
+
+
+
+_err:
+  /* Error case 1*/
+  if ((me-&gt;sock &gt;= 0) &amp;&amp; (W6X_Net_Shutdown(me-&gt;sock, 1) != W6X_STATUS_OK))
+  {
+    LogError(&quot;Failed to close server socket\n&quot;);
+
+  }else{
+    LogInfo(&quot;Socket closed\n&quot;);
+
+  }
+
+    /* De-initialize the ST67W6X Network module */
+    W6X_Net_DeInit();
+
+    /* De-initialize the ST67W6X Wi-Fi module */
+    W6X_WiFi_DeInit();
+
+    /* De-initialize the ST67W6X Driver */
+    W6X_DeInit();
+
+    shell_freertos_deinit();
+
+    LogInfo(&quot;##### Sever Application end\n&quot;);
+
+    //Create the initial start  event for the server
+    QACTIVE_POST(AO_Server, Q_NEW(QEvt, ST67_INIT_FAIL_SIG), (void)0U);</action>
       <tran_glyph conn="3,38,3,-1,11">
        <action box="0,-2,18,2"/>
       </tran_glyph>
      </tran>
-     <state_glyph color="2" node="3,30,28,20">
+     <state_glyph color="2" node="3,30,40,17">
       <entry box="0,3,14,2"/>
      </state_glyph>
     </state>
-    <state_diagram size="75,56"/>
+    <state_diagram size="120,74"/>
    </statechart>
   </class>
  </package>
@@ -140,27 +337,23 @@ main_app();</entry>
  <directory name="..\Appli\App">
   <!--${..\Appli\App::HttpServer.c}-->
   <file name="HttpServer.c">
-   <text>#include &quot;main.h&quot;
+   <text>#include &lt;string.h&gt;
+#include &lt;inttypes.h&gt;
+
+#include &quot;main.h&quot;
 #include &quot;qpc.h&quot;
-
-#include &quot;main_app.h&quot;
-#include &quot;HttpServer.h&quot;
-
+#include &quot;FreeRTOS.h&quot;
+#include &quot;w6x_api.h&quot;
 #include &quot;logging.h&quot;
 
-$declare ${AOs}
+#include &quot;common_parser.h&quot; /* Common Parser functions */
+#include &quot;shell.h&quot;
 
-
-$define ${Shared}
-
-
-$define ${AOs}
-</text>
-  </file>
-  <!--${..\Appli\App::HttpServer.h}-->
-  <file name="HttpServer.h">
-   <text>#ifndef shared_H_
-#define shared_H_
+#include &quot;app_config.h&quot;
+#include &quot;main_app.h&quot;
+#include &quot;HttpServer.h&quot;
+#include &quot;HttpService.h&quot;
+#include &quot;event_groups.h&quot;
 
 /** Priority of the user pins polling task */
 #define PIN_POLLING_THREAD_PRIO        30
@@ -180,14 +373,42 @@ $define ${AOs}
 /** Socket timeout in ms */
 #define SOCKET_TIMEOUT_MS              1000
 
-/** Event flag for pin status update */
-#define EVENT_FLAG_PIN                 (1&lt;&lt;1)
+/** Maximum bytes to send in one step */
+#define MAX_BYTES_TO_SEND              4096
 
-/** Timeout for the pin status update in ms */
-#define PIN_TIMEOUT_MS                 9000
+extern EventGroupHandle_t pin_handle;
 
-/** Buffer size for the child task */
-#define HTTP_CHILD_TASK_BUFFER_SIZE    1024
+$declare ${AOs}
+
+
+$define ${Shared}
+
+
+$define ${AOs}
+</text>
+  </file>
+  <!--${..\Appli\App::HttpServer.h}-->
+  <file name="HttpServer.h">
+   <text>#ifndef HttpServer_H_
+#define HttpServer_H_
+
+/** Priority of the user pins polling task */
+#define PIN_POLLING_THREAD_PRIO        30
+
+/** Stack size of the user pins polling task */
+#define PIN_POLLING_TASK_STACK_SIZE    512
+
+/** Priority of the web server child task */
+#define WEBSERVER_CHILD_THREAD_PRIO    29
+
+/** Stack size of the web server child task */
+#define HTTP_CHILD_TASK_STACK_SIZE     2048
+
+/** HTTP server port */
+#define HTTP_PORT                      80
+
+/** Socket timeout in ms */
+#define SOCKET_TIMEOUT_MS              1000
 
 /** Maximum bytes to send in one step */
 #define MAX_BYTES_TO_SEND              4096
@@ -205,7 +426,398 @@ $define ${AOs}
 $declare ${Shared}
 
 
-#endif // DPP_H_</text>
+#endif</text>
+  </file>
+  <!--${..\Appli\App::HttpService.h}-->
+  <file name="HttpService.h">
+   <text>#ifndef HttpService_H_
+#define HttpService_H_
+
+
+/** Event flag for pin status update */
+#define EVENT_FLAG_PIN                 (1&lt;&lt;1)
+
+
+typedef struct
+{
+  GPIO_PinState btn_state;        /*!&lt; user button state */
+  GPIO_PinState led_green_state;  /*!&lt; green led state */
+  GPIO_PinState led_red_state;    /*!&lt; red led state */
+} PinInfos_t;
+
+
+/* Private function prototypes -----------------------------------------------*/
+/**
+  * @brief  Web server child task
+  * @param  arg: pointer on argument(not used here)
+  */
+void http_server_serve_task(void *arg);
+
+/**
+  * @brief  Pins polling task
+  * @param  arg: pointer on argument(not used here)
+  */
+void pin_verification_task(void *arg);
+
+
+#endif</text>
+  </file>
+  <!--${..\Appli\App::HttpService.c}-->
+  <file name="HttpService.c">
+   <text>#include &lt;string.h&gt;
+
+#include &quot;FreeRTOS.h&quot;
+#include &quot;w6x_api.h&quot;
+#include &quot;common_parser.h&quot; /* Common Parser functions */
+#include &quot;main.h&quot;
+
+#include &quot;event_groups.h&quot;
+#include &quot;HttpService.h&quot;
+
+/* Please read the following Wiki on how to create the html_pages.h binary:
+https://wiki.st.com/stm32mcu/wiki/Connectivity:Wi-Fi_ST67W6X_HTTP_Server_Application */
+#include &quot;html_pages.h&quot;
+
+
+
+/** Buffer size for the child task */
+#define HTTP_CHILD_TASK_BUFFER_SIZE    1024
+
+/** Timeout for the pin status update in ms */
+#define PIN_TIMEOUT_MS                 9000
+
+
+/* Private typedef -----------------------------------------------------------*/
+/**
+  * @brief  HTTP server response type
+  */
+typedef enum
+{
+  FAVICON_SVG,
+  ST_LOGO_SVG,
+  INDEX_HTML,
+  LED_GREEN_STATE,
+  LED_RED_STATE,
+  BUTTON_STATE,
+  ERROR_404_HTML,
+  UNKNOWN_RESPONSE
+} HttpServer_response_e;
+
+/**
+  * @brief  HTTP server response structure
+  */
+typedef struct
+{
+  HttpServer_response_e response_type;  /*!&lt; Type of response */
+  const char *request;                  /*!&lt; Request string */
+  const char *response;                 /*!&lt; Response string */
+} HttpServer_response_t;
+
+
+/* Private variables ---------------------------------------------------------*/
+/** Button and Leds states */
+static volatile PinInfos_t pins_info =
+{
+  .btn_state = GPIO_PIN_RESET,
+  .led_green_state = GPIO_PIN_RESET,
+  .led_red_state = GPIO_PIN_RESET
+};
+
+/** Event group handle for pin status update */
+EventGroupHandle_t pin_handle;
+
+/** Flag to indicate if the button state has changed */
+extern uint8_t button_changed;
+
+/** Response with OK content */
+static const char response_ok_html[] =
+{
+  &quot;HTTP/1.1 200 OK\r\n&quot;
+  &quot;Server: U5\r\n&quot;
+  &quot;Access-Control-Allow-Origin: * \r\n&quot;
+  &quot;Cache-Control: no-cache\r\n&quot;
+  &quot;Keep-Alive: timeout=2, max=2\r\n&quot;
+  &quot;Connection: close\r\n&quot;
+  &quot;Content-Type: text/html; charset=utf-8\r\n&quot;
+  &quot;Content-Length: 2\r\n\r\n&quot;
+  &quot;OK&quot;
+};
+
+/** Response content depending on the request */
+HttpServer_response_t http_server_responses[] =
+{
+  {INDEX_HTML,      &quot;GET / &quot;,                                     response_index_html},
+  {FAVICON_SVG,     &quot;GET /favicon.ico&quot;,                           response_favicon_svg},
+  {ST_LOGO_SVG,     &quot;GET /ST_logo_2020_white_no_tagline_rgb.svg&quot;, response_st_logo_svg},
+  {LED_GREEN_STATE, &quot;GET /LedGreen&quot;,                              response_ok_html},
+  {LED_RED_STATE,   &quot;GET /LedRed&quot;,                                response_ok_html},
+  {BUTTON_STATE,    &quot;GET /pins_status&quot;,                           NULL},
+};
+
+
+
+
+/**
+  * @brief  Write HTML data to client
+  * @param  client: client information
+  * @param  buffer: HTML data to send
+  * @param  buffer_size: size of the data to send
+  * @retval 0 if success, 1 otherwise
+  */
+static int32_t http_server_write(int32_t client, const char *buffer, size_t buffer_size);
+
+/**
+  * @brief  Close client connection
+  * @param  client: client information
+  * @retval 0
+  */
+static int32_t close_client(int32_t client);
+
+/**
+  * @brief  Process the HTTP response
+  * @param  client: client information
+  * @param  recv_buffer: received request data
+  */
+static void http_process_response(int32_t client, char *recv_buffer);
+
+
+
+
+
+
+void http_server_serve_task(void *arg)
+{
+  int32_t client = *((int32_t *)arg);
+  int32_t bytes_received;
+  int32_t recv_total_len = 0;
+  /* Allocate considering the biggest buffer the client can send */
+  size_t recv_buffer_len = HTTP_CHILD_TASK_BUFFER_SIZE;
+  char *recv_buffer = (char *)pvPortMalloc(recv_buffer_len);
+  if (recv_buffer == NULL)
+  {
+    LogError(&quot;Unable to allocate recv buffer\n&quot;);
+    goto _err;
+  }
+
+  /* USER CODE BEGIN http_server_serve_task_1 */
+
+  /* USER CODE END http_server_serve_task_1 */
+
+  /* Read in the request */
+  recv_buffer[0] = '\0';
+  do
+  {
+    bytes_received = W6X_Net_Recv(client, (uint8_t *)&amp;recv_buffer[recv_total_len], recv_buffer_len, 0);
+    if (bytes_received &lt; 0) /* No data received or error */
+    {
+      break;
+    }
+
+    /* Case where we have receive less than the buffer allocated */
+    if (bytes_received &lt; recv_buffer_len)
+    {
+      recv_total_len += bytes_received;
+      break;
+    }
+
+    recv_total_len += bytes_received;
+    recv_buffer_len -= bytes_received;
+  } while ((bytes_received != 0) &amp;&amp; (recv_buffer_len &gt; 0));
+
+  if (recv_total_len == 0)
+  {
+    LogError(&quot;No data read on the socket, closing the socket\n&quot;);
+    goto _close;
+  }
+  LogDebug(&quot;\n %&quot; PRIi32 &quot; &gt;&gt;&gt; %&quot; PRIi32 &quot; &lt;&lt;&lt;\n&quot;, client, recv_total_len);
+
+  /* Count can be negative. */
+  if (recv_total_len &gt; 0)
+  {
+    recv_buffer[recv_total_len++] = '\0';
+    LogDebug(&quot;\n %&quot; PRIi32 &quot; &gt;&gt;&gt; %s &lt;&lt;&lt;\n&quot;, client, recv_buffer);
+  }
+
+  /* USER CODE BEGIN http_server_serve_task_2 */
+
+  /* USER CODE END http_server_serve_task_2 */
+
+  /* Process the response */
+  http_process_response(client, recv_buffer);
+
+  /* USER CODE BEGIN http_server_serve_task_last */
+
+  /* USER CODE END http_server_serve_task_last */
+
+_close:
+  vPortFree(recv_buffer);
+_err:
+  close_client(client);
+  vTaskDelete(NULL);
+}
+
+
+static void http_process_response(int32_t client, char *recv_buffer)
+{
+  HttpServer_response_e response = UNKNOWN_RESPONSE;
+  char *response_data = NULL;
+  char response_template[250] =
+  {
+    &quot;HTTP/1.1 200 OK\r\n&quot;
+    &quot;Server: U5\r\n&quot;
+    &quot;Access-Control-Allow-Origin: * \r\n&quot;
+    &quot;Cache-Control: no-cache\r\n&quot;
+    &quot;Keep-Alive: timeout=2, max=2\r\n&quot;
+    &quot;Connection: close\r\n&quot;
+    &quot;Content-Type: text/html; charset=utf-8\r\n&quot;
+  };
+
+  /* USER CODE BEGIN http_process_response_1 */
+
+  /* USER CODE END http_process_response_1 */
+
+  /* Check the request to determine the response */
+  for (uint32_t i = 0; i &lt; sizeof(http_server_responses) / sizeof(http_server_responses[0]); i++)
+  {
+    if (strncmp(recv_buffer, http_server_responses[i].request, strlen(http_server_responses[i].request)) == 0)
+    {
+      response = http_server_responses[i].response_type;
+      response_data = (char *)http_server_responses[i].response;
+      break;
+    }
+  }
+
+  /* USER CODE BEGIN http_process_response_2 */
+
+  /* USER CODE END http_process_response_2 */
+
+  if (response == UNKNOWN_RESPONSE) /* Request not recognized, return 404 error */
+  {
+    response_data = (char *)response_error_404_html;
+  }
+  else if (response == BUTTON_STATE) /* Prepare a custom response for the button state */
+  {
+    LogInfo(&quot;\nPending request for the PIN STATUS received\n\n&quot;);
+    /* Wait for the pin status update */
+    (void)xEventGroupWaitBits(pin_handle, EVENT_FLAG_PIN, pdTRUE, pdFALSE, pdMS_TO_TICKS(PIN_TIMEOUT_MS));
+    /* Send anyway the pin status update or the last known status if timeouted */
+    /* Prepare the HTTP content data */
+    char data[60];
+    snprintf(data, sizeof(data), &quot;{\&quot;LedGreenPin\&quot;:%&quot; PRIu16 &quot;,\&quot;LedRedPin\&quot;:%&quot; PRIu16 &quot;,\&quot;BtnPin\&quot;:%&quot; PRIu16 &quot;}&quot;,
+             (pins_info.led_green_state == GPIO_PIN_RESET ? 0 : 1),
+             (pins_info.led_red_state == GPIO_PIN_RESET ? 0 : 1),
+             (pins_info.btn_state == GPIO_PIN_RESET ? 0 : 1));
+
+    /* Append the content length and the data to the response */
+    snprintf(&amp;response_template[strlen(response_template)], sizeof(response_template) - strlen(response_template),
+             &quot;Content-Length: %&quot; PRIu32 &quot;\r\n\r\n%s&quot;, (uint32_t)strlen(data), data);
+
+    LogInfo(&quot;Pins status :\n%s\n&quot;, data);
+    response_data = response_template;
+  }
+
+  /* Send the response */
+  if (1 == http_server_write(client, response_data, strlen(response_data)))
+  {
+    return;
+  }
+
+  /* Finalize the response */
+  if (response == LED_RED_STATE) /* Toggle the red LED */
+  {
+    HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
+  }
+  else if (response == LED_GREEN_STATE) /* Toggle the green LED */
+  {
+    HAL_GPIO_TogglePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin);
+  }
+
+  /* USER CODE BEGIN http_process_response_last */
+
+  /* USER CODE END http_process_response_last */
+}
+
+void pin_verification_task(void *arg)
+{
+  UNUSED(arg);
+  GPIO_PinState Btn;
+  GPIO_PinState LedGreen;
+  GPIO_PinState LedRed;
+
+  /* USER CODE BEGIN pin_verification_task_1 */
+
+  /* USER CODE END pin_verification_task_1 */
+
+  while (1)
+  {
+    do /* Wait for the button or the LEDs to change */
+    {
+      vTaskDelay(50);
+      Btn = (GPIO_PinState)button_changed;
+      LedGreen = HAL_GPIO_ReadPin(LED_GREEN_GPIO_Port, LED_GREEN_Pin);
+      LedRed = HAL_GPIO_ReadPin(LED_RED_GPIO_Port, LED_RED_Pin);
+    } while ((Btn == pins_info.btn_state) &amp;&amp;
+             (LedGreen == pins_info.led_green_state) &amp;&amp;
+             (LedRed == pins_info.led_red_state));
+
+    /* Update the button and the LEDs states */
+    pins_info.btn_state = Btn;
+    pins_info.led_green_state = LedGreen;
+    pins_info.led_red_state = LedRed;
+
+    /* Notify the HTTP server task */
+    xEventGroupSetBits(pin_handle, EVENT_FLAG_PIN);
+  }
+}
+
+
+static int32_t http_server_write(int32_t client, const char *buffer, size_t buffer_size)
+{
+  int32_t bytes_sent = 0;
+
+  /* USER CODE BEGIN http_server_write_1 */
+
+  /* USER CODE END http_server_write_1 */
+
+  LogDebug(&quot;[%&quot; PRIi32 &quot;] *****&gt; %s&lt;*****\n&quot;, client, buffer);
+
+  do /* Send the data. Can be done in multiple steps. */
+  {
+    bytes_sent = W6X_Net_Send(client, (void *)buffer, buffer_size, 0);
+    if (bytes_sent &lt; 0)
+    {
+      LogError(&quot;[%&quot; PRIi32 &quot;] *****&gt; SEND ERROR &lt;*****\n&quot;, client);
+      return 1;
+    }
+    buffer_size -= bytes_sent;
+    buffer += bytes_sent;
+  } while (buffer_size &gt; 0);
+
+  /* USER CODE BEGIN http_server_write_last */
+
+  /* USER CODE END http_server_write_last */
+
+  return 0;
+}
+
+
+static int32_t close_client(int32_t client)
+{
+  /* USER CODE BEGIN close_client_1 */
+
+  /* USER CODE END close_client_1 */
+
+  /* Close the connection */
+  (void)W6X_Net_Close(client);
+  LogDebug(&quot;!!! Closed connection &lt;%&quot; PRIi32 &quot;&gt; !!!\n&quot;, client);
+
+  /* USER CODE BEGIN close_client_last */
+
+  /* USER CODE END close_client_last */
+
+  return 0;
+}
+</text>
   </file>
  </directory>
 </model>
