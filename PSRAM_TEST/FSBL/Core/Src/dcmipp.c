@@ -118,9 +118,9 @@ void HAL_DCMIPP_MspInit(DCMIPP_HandleTypeDef* dcmippHandle)
     __HAL_RCC_CSI_RELEASE_RESET();
 
     /* DCMIPP interrupt Init */
-    HAL_NVIC_SetPriority(DCMIPP_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(DCMIPP_IRQn, 3, 0);
     HAL_NVIC_EnableIRQ(DCMIPP_IRQn);
-    HAL_NVIC_SetPriority(CSI_IRQn, 1, 0);
+    HAL_NVIC_SetPriority(CSI_IRQn, 3, 0);
     HAL_NVIC_EnableIRQ(CSI_IRQn);
   /* USER CODE BEGIN DCMIPP_MspInit 1 */
 

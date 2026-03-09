@@ -42,6 +42,8 @@ typedef struct
 //MY Extern varibles
 extern UINT fxsd_status;
 extern FX_FILE         fx_file;
+extern FX_MEDIA        sdio_disk;
+
 
 /* Private define ------------------------------------------------------------*/
 #if (JPEG_RGB_FORMAT == JPEG_ARGB8888)
@@ -147,7 +149,8 @@ uint32_t JPEG_Encode_DMA_IT(JPEG_HandleTypeDef *hjpeg, uint32_t RGBImageBufferAd
   HAL_JPEG_ConfigEncoding(hjpeg, &Conf);
 
   /* Start JPEG encoding with DMA method */
-  hal_status = HAL_JPEG_Encode_IT(hjpeg ,Jpeg_IN_BufferTab.DataBuffer ,Jpeg_IN_BufferTab.DataBufferSize ,Jpeg_OUT_BufferTab.DataBuffer ,CHUNK_SIZE_OUT);
+//  hal_status = HAL_JPEG_Encode_IT(hjpeg ,Jpeg_IN_BufferTab.DataBuffer ,Jpeg_IN_BufferTab.DataBufferSize ,Jpeg_OUT_BufferTab.DataBuffer ,CHUNK_SIZE_OUT);
+  hal_status = HAL_JPEG_Encode_IT(hjpeg ,Jpeg_IN_BufferTab.DataBuffer ,Jpeg_IN_BufferTab.DataBufferSize ,(uint8_t *)(BUFFER_ADDRESS + BUFFER_SIZE) , (uint32_t) BUFFER_SIZE);
   if(hal_status != HAL_OK){
 	  Error_Handler();
   }
@@ -161,36 +164,61 @@ uint32_t JPEG_Encode_DMA_IT(JPEG_HandleTypeDef *hjpeg, uint32_t RGBImageBufferAd
   */
 uint32_t JPEG_EncodeOutputHandler(JPEG_HandleTypeDef *hjpeg)
 {
-
-  if(Jpeg_OUT_BufferTab.State == JPEG_BUFFER_FULL)
-  {
-    /* Copy encoded shunk from Jpeg_OUT_BufferTab to JpegBuffer */
-//    memcpy(pJpegBuffer, Jpeg_OUT_BufferTab.DataBuffer ,Jpeg_OUT_BufferTab.DataBufferSize);
-
-	fxsd_status =  fx_file_write(&fx_file, Jpeg_OUT_BufferTab.DataBuffer, Jpeg_OUT_BufferTab.DataBufferSize);
-	if (fxsd_status != FX_SUCCESS)
-	{
-		/* Error writing to a file, call error handler.  */
-		Error_Handler();
-	}
-
-//    pJpegBuffer+= Jpeg_OUT_BufferTab.DataBufferSize/4;
-    Jpeg_OUT_BufferTab.State = JPEG_BUFFER_EMPTY;
-    Jpeg_OUT_BufferTab.DataBufferSize = 0;
-
     if(Jpeg_HWEncodingEnd != 0)
     {
+		fxsd_status =  fx_file_write(&fx_file, (uint8_t *)(BUFFER_ADDRESS + BUFFER_SIZE), Jpeg_OUT_BufferTab.DataBufferSize);
+		if (fxsd_status != FX_SUCCESS)
+		{
+			/* Error writing to a file, call error handler.  */
+			Error_Handler();
+		}
       return 1;
     }
-    else if((Output_Is_Paused == 1) && (Jpeg_OUT_BufferTab.State == JPEG_BUFFER_EMPTY))
-    {
-      Output_Is_Paused = 0;
-      HAL_JPEG_Resume(hjpeg, JPEG_PAUSE_RESUME_OUTPUT);
-    }
-  }
-
-
-  return 0;
+    return 0U;
+//  if(Jpeg_OUT_BufferTab.State == JPEG_BUFFER_FULL)
+//  {
+//    /* Copy encoded shunk from Jpeg_OUT_BufferTab to JpegBuffer */
+////    memcpy(pJpegBuffer, Jpeg_OUT_BufferTab.DataBuffer ,Jpeg_OUT_BufferTab.DataBufferSize);
+//
+////	fxsd_status =  fx_file_write(&fx_file, Jpeg_OUT_BufferTab.DataBuffer, Jpeg_OUT_BufferTab.DataBufferSize);
+////	if (fxsd_status != FX_SUCCESS)
+////	{
+////		/* Error writing to a file, call error handler.  */
+////		Error_Handler();
+////	}
+//
+//	fxsd_status = fx_media_flush(&sdio_disk);
+//
+//	/* Check the media flush  status.  */
+//	if (fxsd_status != FX_SUCCESS)
+//	{
+//		/* Error closing the file, call error handler.  */
+//		Error_Handler();
+//	}
+//
+////    pJpegBuffer+= Jpeg_OUT_BufferTab.DataBufferSize/4;
+//    Jpeg_OUT_BufferTab.State = JPEG_BUFFER_EMPTY;
+//    Jpeg_OUT_BufferTab.DataBufferSize = 0;
+//
+//    if(Jpeg_HWEncodingEnd != 0)
+//    {
+//		fxsd_status =  fx_file_write(&fx_file, (uint8_t *)(BUFFER_ADDRESS + BUFFER_SIZE), Jpeg_OUT_BufferTab.DataBufferSize);
+//		if (fxsd_status != FX_SUCCESS)
+//		{
+//			/* Error writing to a file, call error handler.  */
+//			Error_Handler();
+//		}
+//      return 1;
+//    }
+//    else if((Output_Is_Paused == 1) && (Jpeg_OUT_BufferTab.State == JPEG_BUFFER_EMPTY))
+//    {
+//      Output_Is_Paused = 0;
+//      HAL_JPEG_Resume(hjpeg, JPEG_PAUSE_RESUME_OUTPUT);
+//    }
+//  }
+//
+//
+//  return 0;
 }
 
 /**
@@ -258,13 +286,13 @@ void HAL_JPEG_GetDataCallback(JPEG_HandleTypeDef *hjpeg, uint32_t NbEncodedData)
   */
 void HAL_JPEG_DataReadyCallback (JPEG_HandleTypeDef *hjpeg, uint8_t *pDataOut, uint32_t OutDataLength)
 {
-  Jpeg_OUT_BufferTab.State = JPEG_BUFFER_FULL;
+//  Jpeg_OUT_BufferTab.State = JPEG_BUFFER_FULL;
   Jpeg_OUT_BufferTab.DataBufferSize = OutDataLength;
 
-  HAL_JPEG_Pause(hjpeg, JPEG_PAUSE_RESUME_OUTPUT);
-  Output_Is_Paused = 1;
-
-  HAL_JPEG_ConfigOutputBuffer(hjpeg, Jpeg_OUT_BufferTab.DataBuffer, CHUNK_SIZE_OUT);
+//  HAL_JPEG_Pause(hjpeg, JPEG_PAUSE_RESUME_OUTPUT);
+//  Output_Is_Paused = 1;
+//
+//  HAL_JPEG_ConfigOutputBuffer(hjpeg, Jpeg_OUT_BufferTab.DataBuffer, CHUNK_SIZE_OUT);
 }
 
 /**

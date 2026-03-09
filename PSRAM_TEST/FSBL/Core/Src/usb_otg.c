@@ -87,7 +87,7 @@ void HAL_HCD_MspInit(HCD_HandleTypeDef* hcdHandle)
     __HAL_RCC_USB1_OTG_HS_PHY_CLK_ENABLE();
 
     /* USB1_OTG_HS interrupt Init */
-    HAL_NVIC_SetPriority(USB1_OTG_HS_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(USB1_OTG_HS_IRQn, 7, 0);
     HAL_NVIC_EnableIRQ(USB1_OTG_HS_IRQn);
   /* USER CODE BEGIN USB1_OTG_HS_MspInit 1 */
 	#endif
