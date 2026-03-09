@@ -175,20 +175,6 @@ void main_app(void)
     goto _err;
   }
 
-
-
-
-  /****************************************************************************************************/
-  /****************************************************************************************************/
-    while(1){// the program is halted here for testing purposes
-  	  osDelay(1000U);
-
-    }
-
-
-
-
-
   /* Initialize the ST67W6X Wi-Fi module */
   ret = W6X_WiFi_Init();
   if (ret)

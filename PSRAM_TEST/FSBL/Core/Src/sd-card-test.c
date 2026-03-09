@@ -24,9 +24,9 @@ CHAR filename[20];
 uint8_t fileindex = 0;
 
 UINT fxsd_status = FX_SUCCESS;
-uint8_t create_file = 0U;
+extern uint8_t create_file;
 
-__IO uint8_t *mem_addr;
+//__IO uint8_t *mem_addr;
 
 void sdcard_test(void){
 

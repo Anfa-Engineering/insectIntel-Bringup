@@ -61,36 +61,35 @@ void MX_USB1_OTG_HS_HCD_Init(void)
 void HAL_HCD_MspInit(HCD_HandleTypeDef* hcdHandle)
 {
 
-	  RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
-	  if(hcdHandle->Instance==USB1_OTG_HS)
-	  {
-	  /* USER CODE BEGIN USB1_OTG_HS_MspInit 0 */
+  RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
+  if(hcdHandle->Instance==USB1_OTG_HS)
+  {
+  /* USER CODE BEGIN USB1_OTG_HS_MspInit 0 */
 		  __HAL_RCC_GPIOB_CLK_ENABLE();
 
 	#if defined(USE_BELLOW_CODE)
 
-	  /* USER CODE END USB1_OTG_HS_MspInit 0 */
+  /* USER CODE END USB1_OTG_HS_MspInit 0 */
 
-	  /** Initializes the peripherals clock
-	  */
-	    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USBOTGHS2;
-	    PeriphClkInitStruct.UsbPhy2ClockSelection = RCC_USBPHY2CLKSOURCE_HSE_DIRECT;
-	    PeriphClkInitStruct.UsbOtgHs2ClockSelection = RCC_USBOTGHS2CLKSOURCE_OTGPHY2;
-	    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
-	    {
-	      Error_Handler();
-	    }
+  /** Initializes the peripherals clock
+  */
+    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USBOTGHS1;
+    PeriphClkInitStruct.UsbOtgHs1ClockSelection = RCC_USBOTGHS1CLKSOURCE_HSE_DIRECT;
+    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+    {
+      Error_Handler();
+    }
 
-	    /* Enable VDDUSB */
-	    HAL_PWREx_EnableVddUSB();
-	    /* USB1_OTG_HS clock enable */
-	    __HAL_RCC_USB1_OTG_HS_CLK_ENABLE();
-	    __HAL_RCC_USB1_OTG_HS_PHY_CLK_ENABLE();
+    /* Enable VDDUSB */
+    HAL_PWREx_EnableVddUSB();
+    /* USB1_OTG_HS clock enable */
+    __HAL_RCC_USB1_OTG_HS_CLK_ENABLE();
+    __HAL_RCC_USB1_OTG_HS_PHY_CLK_ENABLE();
 
-	    /* USB1_OTG_HS interrupt Init */
-	    HAL_NVIC_SetPriority(USB1_OTG_HS_IRQn, 0, 0);
-	    HAL_NVIC_EnableIRQ(USB1_OTG_HS_IRQn);
-	  /* USER CODE BEGIN USB1_OTG_HS_MspInit 1 */
+    /* USB1_OTG_HS interrupt Init */
+    HAL_NVIC_SetPriority(USB1_OTG_HS_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(USB1_OTG_HS_IRQn);
+  /* USER CODE BEGIN USB1_OTG_HS_MspInit 1 */
 	#endif
 	(void)PeriphClkInitStruct;
 	////////////////////////////////////////////////////////////////////'
@@ -125,8 +124,8 @@ void HAL_HCD_MspInit(HCD_HandleTypeDef* hcdHandle)
 	    HAL_Delay(1);
 
 	/////////////////////////////////////////////////////////////////
-	  /* USER CODE END USB1_OTG_HS_MspInit 1 */
-	  }
+  /* USER CODE END USB1_OTG_HS_MspInit 1 */
+  }
 }
 
 void HAL_HCD_MspDeInit(HCD_HandleTypeDef* hcdHandle)

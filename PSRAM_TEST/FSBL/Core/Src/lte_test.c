@@ -42,8 +42,8 @@ void lte_test(void){
 		MX_USART3_UART_Init();
 
 		//Power the LTE
-		HAL_GPIO_WritePin(LTE_PWR_EN_GPIO_Port, LTE_PWR_EN_Pin, GPIO_PIN_SET);
-		HAL_Delay(50U);
+//		HAL_GPIO_WritePin(LTE_PWR_EN_GPIO_Port, LTE_PWR_EN_Pin, GPIO_PIN_SET);
+//		HAL_Delay(50U);
 		HAL_GPIO_WritePin(LTE_PWR_KEY_GPIO_Port, LTE_PWR_KEY_Pin, GPIO_PIN_SET);
 		HAL_Delay(2000U);
 		HAL_GPIO_WritePin(LTE_DTR_GPIO_Port, LTE_DTR_Pin, GPIO_PIN_RESET);

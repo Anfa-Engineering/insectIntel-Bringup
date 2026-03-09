@@ -54,7 +54,29 @@ uint8_t fileindex = 0;
 UINT fxsd_status = FX_SUCCESS;
 
 void cam_test(void){
-	    ISP_AppliHelpersTypeDef appliHelpers = {0};
+
+		//Initial detection of card
+		if(!HAL_GPIO_ReadPin(SD_DET_GPIO_Port, SD_DET_Pin)){
+
+			//Open the file filesystem for this media
+			fxsd_status =  fx_media_open(&sdio_disk, FX_SD_VOLUME_NAME, fx_stm32_sd_driver, (VOID *)FX_NULL, (VOID *) fx_sd_media_memory, sizeof(fx_sd_media_memory));
+
+			// Check the media open sd_status
+			if (fxsd_status != FX_SUCCESS){
+			  Error_Handler();
+			}
+			//Set green led one as high for success indication on boot up
+			HAL_GPIO_WritePin(GREEN_LED_GPIO_Port, GREEN_LED_Pin, GPIO_PIN_SET);
+			cardstaus = CARD_STATUS_CONNECTED;
+			printf("Card Present\r\n");
+
+		}else {
+			cardstaus = CARD_STATUS_DISCONNECTED;
+			printf("\r\nCard Absent\r\n");
+
+		}
+
+		ISP_AppliHelpersTypeDef appliHelpers = {0};
 
 		/* Initialize the IMX335 Sensor ----------------------------- */
 		IMX335_Probe(IMX335_R2592_1944, IMX335_RAW_RGGB10);
@@ -82,35 +104,14 @@ void cam_test(void){
 		{
 			Error_Handler();
 		}
-//		while(1);
-		//Initial detection of card
-		if(!HAL_GPIO_ReadPin(SD_DET_GPIO_Port, SD_DET_Pin)){
-
-			//Open the file filesystem for this media
-			fxsd_status =  fx_media_open(&sdio_disk, FX_SD_VOLUME_NAME, fx_stm32_sd_driver, (VOID *)FX_NULL, (VOID *) fx_sd_media_memory, sizeof(fx_sd_media_memory));
-
-			// Check the media open sd_status
-			if (fxsd_status != FX_SUCCESS){
-			  Error_Handler();
-			}
-			//Set green led one as high for success indication on boot up
-			HAL_GPIO_WritePin(GREEN_LED_GPIO_Port, GREEN_LED_Pin, GPIO_PIN_SET);
-			cardstaus = CARD_STATUS_CONNECTED;
-			printf("Card Present\r\n");
-
-		}else {
-			cardstaus = CARD_STATUS_DISCONNECTED;
-			printf("\r\nCard Absent\r\n");
-
-		}
 
 		while(1){
 
-			// Background processing
-			if(ISP_BackgroundProcess(&hIsp) != ISP_OK){
-				HAL_GPIO_TogglePin(RED_LED_GPIO_Port, RED_LED_Pin);
+		// Background processing
+		if(ISP_BackgroundProcess(&hIsp) != ISP_OK){
+			HAL_GPIO_TogglePin(RED_LED_GPIO_Port, RED_LED_Pin);
 
-			}
+		}
 
 //			*((uint8_t *)BUFFER_ADDRESS) = 0xFFU;
 //			printf("\r%lX", *((uint32_t *)BUFFER_ADDRESS));

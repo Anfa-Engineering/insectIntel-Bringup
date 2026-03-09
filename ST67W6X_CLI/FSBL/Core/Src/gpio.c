@@ -47,11 +47,12 @@ void MX_GPIO_Init(void)
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_GPIOF_CLK_ENABLE();
   __HAL_RCC_GPIOG_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(CHIP_EN_GPIO_Port, CHIP_EN_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOE, CHIP_EN1_Pin|SPI_CS_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(BOOT_GPIO_Port, BOOT_Pin, GPIO_PIN_RESET);
@@ -60,7 +61,7 @@ void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOG, LED_GREEN_Pin|LED_RED_Pin|LED_BLUE_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(SPI_CS_GPIO_Port, SPI_CS_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, SPI_CS1_Pin|CHIP_EN_Pin, GPIO_PIN_RESET);
 
   /*Configure the EXTI line attribute */
   HAL_EXTI_ConfigLineAttributes(EXTI_LINE_9, EXTI_LINE_SEC);
@@ -68,18 +69,21 @@ void MX_GPIO_Init(void)
   /*Configure the EXTI line attribute */
   HAL_EXTI_ConfigLineAttributes(EXTI_LINE_12, EXTI_LINE_SEC);
 
-  /*Configure GPIO pin : SPI_RDY_Pin */
-  GPIO_InitStruct.Pin = SPI_RDY_Pin;
+  /*Configure the EXTI line attribute */
+  HAL_EXTI_ConfigLineAttributes(EXTI_LINE_6, EXTI_LINE_SEC);
+
+  /*Configure GPIO pin : SPI_RDY1_Pin */
+  GPIO_InitStruct.Pin = SPI_RDY1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(SPI_RDY_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(SPI_RDY1_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : CHIP_EN_Pin */
-  GPIO_InitStruct.Pin = CHIP_EN_Pin;
+  /*Configure GPIO pins : CHIP_EN1_Pin SPI_CS_Pin */
+  GPIO_InitStruct.Pin = CHIP_EN1_Pin|SPI_CS_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-  HAL_GPIO_Init(CHIP_EN_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
   /*Configure GPIO pin : USER_BUTTON_Pin */
   GPIO_InitStruct.Pin = USER_BUTTON_Pin;
@@ -94,6 +98,12 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(BOOT_GPIO_Port, &GPIO_InitStruct);
 
+  /*Configure GPIO pin : SPI_RDY_Pin */
+  GPIO_InitStruct.Pin = SPI_RDY_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(SPI_RDY_GPIO_Port, &GPIO_InitStruct);
+
   /*Configure GPIO pins : LED_GREEN_Pin LED_RED_Pin LED_BLUE_Pin */
   GPIO_InitStruct.Pin = LED_GREEN_Pin|LED_RED_Pin|LED_BLUE_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -101,16 +111,16 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : SPI_CS_Pin */
-  GPIO_InitStruct.Pin = SPI_CS_Pin;
+  /*Configure GPIO pins : SPI_CS1_Pin CHIP_EN_Pin */
+  GPIO_InitStruct.Pin = SPI_CS1_Pin|CHIP_EN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-  HAL_GPIO_Init(SPI_CS_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(SPI_RDY_EXTI_IRQn, 5, 0);
-  HAL_NVIC_EnableIRQ(SPI_RDY_EXTI_IRQn);
+  HAL_NVIC_SetPriority(SPI_RDY1_EXTI_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(SPI_RDY1_EXTI_IRQn);
 
   HAL_NVIC_SetPriority(USER_BUTTON_EXTI_IRQn, 5, 0);
   HAL_NVIC_EnableIRQ(USER_BUTTON_EXTI_IRQn);

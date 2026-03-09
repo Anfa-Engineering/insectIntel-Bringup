@@ -9,9 +9,11 @@
   <item name="backups">0</item>
  </group>
  <group name="windows">
-  <item id="AOs::Server::SM">0,0,656,515,*</item>
-  <item id="..\Appli\App::HttpServer.c">60,0,596,300</item>
-  <item id="..\Appli\App::HttpServer.h">60,215,596,300</item>
+  <item id="AOs::Server::SM">-460,0,656,515</item>
+  <item id="..\Appli\App::HttpServer.c">0,0,596,300</item>
+  <item id="..\Appli\App::HttpService.c">0,0,656,515,*</item>
+  <item id="..\Appli\App::HttpServer.h">-400,0,596,300</item>
+  <item id="..\Appli\App::HttpService.h">60,215,596,300</item>
  </group>
  <group name="search">
   <item name="options">2032128</item>

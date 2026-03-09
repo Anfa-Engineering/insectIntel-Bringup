@@ -77,28 +77,34 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define SPI_CLK_Pin GPIO_PIN_15
 #define SPI_CLK_GPIO_Port GPIOE
-#define SPI_RDY_Pin GPIO_PIN_9
-#define SPI_RDY_GPIO_Port GPIOE
-#define SPI_RDY_EXTI_IRQn EXTI9_IRQn
-#define CHIP_EN_Pin GPIO_PIN_10
-#define CHIP_EN_GPIO_Port GPIOE
+#define SPI_RDY1_Pin GPIO_PIN_9
+#define SPI_RDY1_GPIO_Port GPIOE
+#define SPI_RDY1_EXTI_IRQn EXTI9_IRQn
+#define CHIP_EN1_Pin GPIO_PIN_10
+#define CHIP_EN1_GPIO_Port GPIOE
 #define USER_BUTTON_Pin GPIO_PIN_12
 #define USER_BUTTON_GPIO_Port GPIOD
 #define USER_BUTTON_EXTI_IRQn EXTI12_IRQn
 #define BOOT_Pin GPIO_PIN_5
 #define BOOT_GPIO_Port GPIOD
+#define SPI_CS_Pin GPIO_PIN_11
+#define SPI_CS_GPIO_Port GPIOE
+#define SPI_RDY_Pin GPIO_PIN_6
+#define SPI_RDY_GPIO_Port GPIOF
 #define SPI_MISO_Pin GPIO_PIN_1
 #define SPI_MISO_GPIO_Port GPIOG
 #define LED_GREEN_Pin GPIO_PIN_0
 #define LED_GREEN_GPIO_Port GPIOG
-#define SPI_CS_Pin GPIO_PIN_3
-#define SPI_CS_GPIO_Port GPIOA
+#define SPI_CS1_Pin GPIO_PIN_3
+#define SPI_CS1_GPIO_Port GPIOA
 #define LED_RED_Pin GPIO_PIN_10
 #define LED_RED_GPIO_Port GPIOG
 #define SPI_MOSI_Pin GPIO_PIN_2
 #define SPI_MOSI_GPIO_Port GPIOG
 #define LED_BLUE_Pin GPIO_PIN_8
 #define LED_BLUE_GPIO_Port GPIOG
+#define CHIP_EN_Pin GPIO_PIN_8
+#define CHIP_EN_GPIO_Port GPIOA
 
 /* USER CODE BEGIN Private defines */
 
