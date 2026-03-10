@@ -162,13 +162,14 @@ void cam_test(void){
 			//	  //reset flag
 			//	  create_file = 0U;
 			//	  uint32_t convertedDataCount;
-//			  uint32_t jpeg_encode_processing_end = 0;
+			  uint32_t jpeg_encode_processing_end = 0;
 			  printf("File creation\r\n");
 
 			  fileindex++;
-			  sprintf(filename, "IMAGE-%d.jpg", fileindex);
+			  sprintf(filename, "Real-img%d.jpg", fileindex);
+//			  sprintf(filename, "Raw-img%d.txt", fileindex);
 
-			  //Create of overwrite the current file
+			  //Create or overwrite the current file
 			  HAL_GPIO_TogglePin(GREEN_LED_GPIO_Port, GREEN_LED_Pin);
 			//	  HAL_Delay(1000U);
 			  // first attempt file creation
@@ -176,7 +177,7 @@ void cam_test(void){
 
 			  if (fxsd_status == FX_SUCCESS || fxsd_status == FX_ALREADY_CREATED)
 			  {
-				 // Either crested of already present i.e good for opening.
+				 // Either created or already present i.e good for opening.
 
 				fxsd_status =  fx_file_open(&sdio_disk, &fx_file, filename, FX_OPEN_FOR_WRITE);
 			  }else{
@@ -191,7 +192,7 @@ void cam_test(void){
 			  if (fxsd_status != FX_SUCCESS)
 			  {
 				/* Error opening file, call error handler.  */
-				printf("File System opening error\r\n");
+				printf("File System opening error.\r\n");
 
 				Error_Handler();
 
@@ -210,27 +211,27 @@ void cam_test(void){
 				Error_Handler();
 			  }
 
-		   printf("Writing file content...\r\n");
-
-			  /*JPEG Encoding with DMA (Not Blocking ) Method */
-			fxsd_status =  fx_file_write(&fx_file, (uint8_t *)(BUFFER_ADDRESS), BUFFER_SIZE);
-			if (fxsd_status != FX_SUCCESS)
-			{
-				/* Error writing to a file, call error handler.  */
-				printf("Write failed.\r\n");
-
-				Error_Handler();
-			}
-
-//			  JPEG_Encode_DMA_IT(&hjpeg, BUFFER_ADDRESS, BUFFER_SIZE, (void *)0U);
+//		   printf("Writing file content...\r\n");
 //
-			//	  wait for encoding to finish
-//			printf("Image compression...\r\n");
+//			  /*JPEG Encoding with DMA (Not Blocking ) Method */
+//			fxsd_status =  fx_file_write(&fx_file, (uint8_t *)(BUFFER_ADDRESS), BUFFER_SIZE);
+//			if (fxsd_status != FX_SUCCESS)
+//			{
+//				/* Error writing to a file, call error handler.  */
+//				printf("Write failed.\r\n");
 //
-//			  do{
-//				JPEG_EncodeInputHandler(&hjpeg);
-//				jpeg_encode_processing_end = JPEG_EncodeOutputHandler(&hjpeg);
-//			  }while(jpeg_encode_processing_end == 0);
+//				Error_Handler();
+//			}
+
+			  JPEG_Encode_DMA_IT(&hjpeg, BUFFER_ADDRESS, BUFFER_SIZE, (void *)0U);
+
+//			wait for encoding to finish
+			printf("Image compression...\r\n");
+
+			  do{
+				JPEG_EncodeInputHandler(&hjpeg);
+				jpeg_encode_processing_end = JPEG_EncodeOutputHandler(&hjpeg);
+			  }while(jpeg_encode_processing_end == 0);
 
 			  /* Close the test file.  */
 		    	printf("fx_media_flushing...\r\n");
