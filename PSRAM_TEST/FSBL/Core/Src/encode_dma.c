@@ -22,6 +22,8 @@
 #include "fx_api.h"
 #include "main.h"
 #include "jpeg_utils.h"
+
+#include <stdio.h>
 /** @addtogroup  STM32N6xx_HAL_Examples
   * @{
   */
