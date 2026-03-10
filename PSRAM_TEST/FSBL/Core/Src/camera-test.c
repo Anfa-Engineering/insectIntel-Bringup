@@ -162,7 +162,7 @@ void cam_test(void){
 			//	  //reset flag
 			//	  create_file = 0U;
 			//	  uint32_t convertedDataCount;
-			  uint32_t jpeg_encode_processing_end = 0;
+//			  uint32_t jpeg_encode_processing_end = 0;
 			  printf("File creation\r\n");
 
 			  fileindex++;
