@@ -202,34 +202,8 @@ void cam_test(void){
 				Error_Handler();
 			  }
 
-
-			//	  Create our MCUS
-			//	  RGB2YCbCr((uint8_t *)BUFFER_ADDRESS, (uint8_t *)(BUFFER_ADDRESS - BUFFER_SIZE + 0x400U), 0U,
-			//				  BUFFER_SIZE, &convertedDataCount);
-			//	  RGB2YCbCr((uint8_t *)BUFFER_ADDRESS, (uint8_t *)(BUFFER_ADDRESS - 0x800U /*+ BUFFER_SIZE*/), 0U,
-			//				  BUFFER_SIZE, &convertedDataCount);
-
-			//	  Check if we were succefull
-			//	  if(convertedDataCount != BUFFER_HEIGHT * BUFFER_WIDTH * 3){
-			//		  Error_Handler();
-			//	  }
-			//	  For matters of Contingency
-			//	  *((uint32_t *)(BUFFER_ADDRESS + BUFFER_SIZE + convertedDataCount)) = 0xFFFFFFFF;
-
 			  /*JPEG Encoding with DMA (Not Blocking ) Method */
 			  JPEG_Encode_DMA_IT(&hjpeg, BUFFER_ADDRESS, BUFFER_SIZE, (void *)0U);
-
-			//	  hal_status = HAL_JPEG_Encode_IT(&hjpeg, (uint8_t *)(BUFFER_ADDRESS - 0x400U),
-			//			  convertedDataCount, (uint8_t *)(BUFFER_ADDRESS - 0xF00U),
-			//			  HAL_MAX_DELAY);
-
-			//	  hal_status = HAL_JPEG_Encode_IT(&hjpeg, (uint8_t *)(BUFFER_ADDRESS - BUFFER_SIZE + 0x400U),
-			//			  convertedDataCount, (uint8_t *)(BUFFER_ADDRESS - BUFFER_SIZE),
-			//			  HAL_MAX_DELAY);
-
-			//	  if(hal_status != HAL_OK){
-			//		  Error_Handler();
-			//	  }
 
 			//	  wait for encoding to finish
 			  do{
@@ -237,24 +211,8 @@ void cam_test(void){
 				jpeg_encode_processing_end = JPEG_EncodeOutputHandler(&hjpeg);
 			  }while(jpeg_encode_processing_end == 0);
 
-			//	  if(encoded_size > BUFFER_SIZE){
-			//		  Error_Handler();
-			//	  }
-
-			  /* Write a string to the test file.  */
-			//	  fxsd_status =  fx_file_write(&fx_file, data, sizeof(data));
-			//	  fxsd_status =  fx_file_write(&fx_file, (uint8_t *)(BUFFER_ADDRESS + BUFFER_SIZE + convertedDataCount ), encoded_size);
-			//	  fxsd_status =  fx_file_write(&fx_file, (uint8_t *)(BUFFER_ADDRESS - 0xF00U), encoded_size);
-
-			  /* Check the file write status.  */
-			  if (fxsd_status != FX_SUCCESS)
-			  {
-				/* Error writing to a file, call error handler.  */
-				Error_Handler();
-			  }
-
 			  /* Close the test file.  */
-			  fxsd_status =  fx_file_close(&fx_file);
+			  fxsd_status = fx_media_flush(&sdio_disk);
 
 			  /* Check the file close status.  */
 			  if (fxsd_status != FX_SUCCESS)
@@ -264,7 +222,7 @@ void cam_test(void){
 			  }
 
 
-			  fxsd_status = fx_media_flush(&sdio_disk);
+			  fxsd_status =  fx_file_close(&fx_file);
 
 			  /* Check the media flush  status.  */
 			  if (fxsd_status != FX_SUCCESS)
@@ -273,16 +231,6 @@ void cam_test(void){
 				Error_Handler();
 			  }
 
-
-			//	  fxsd_status = fx_media_close(&sdio_disk);
-			//
-			//	  if (fxsd_status != FX_SUCCESS)
-			//	  {
-			//		/* Error closing the file, call error handler.  */
-			//		Error_Handler();
-			//	  }
-			//	  HAL_Delay(1000);
-			  //reset flag
 			  create_file = 0U;
 			//	  encoded_size = 0U;
 			if (HAL_DCMIPP_CSI_PIPE_Start(&hdcmipp, DCMIPP_PIPE1, DCMIPP_VIRTUAL_CHANNEL0 , BUFFER_ADDRESS, DCMIPP_MODE_CONTINUOUS) != HAL_OK)

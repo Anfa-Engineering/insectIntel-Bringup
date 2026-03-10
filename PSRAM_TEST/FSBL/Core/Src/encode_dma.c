@@ -55,7 +55,7 @@ extern FX_MEDIA        sdio_disk;
 #endif
 
 #define MAX_INPUT_WIDTH          BUFFER_WIDTH                    /* Set the Maximum of BMP images Width to be tested */
-#define MAX_INPUT_LINES          8U                     /* Set Input buffer lines to 16 for YCbCr420, and 8 for YCbCr422 and YCbCr444 (to save RAM space) */
+#define MAX_INPUT_LINES          16U                     /* Set Input buffer lines to 16 for YCbCr420, and 8 for YCbCr422 and YCbCr444 (to save RAM space) */
 
 
 #define CHUNK_SIZE_IN   ((uint32_t)(MAX_INPUT_WIDTH * (BYTES_PER_PIXEL + 1U) * MAX_INPUT_LINES))
