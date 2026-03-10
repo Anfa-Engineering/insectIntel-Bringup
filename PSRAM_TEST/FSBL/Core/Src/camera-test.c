@@ -162,12 +162,12 @@ void cam_test(void){
 			//	  //reset flag
 			//	  create_file = 0U;
 			//	  uint32_t convertedDataCount;
-			  uint32_t jpeg_encode_processing_end = 0;
+//			  uint32_t jpeg_encode_processing_end = 0;
 			  printf("File creation\r\n");
 
 			  fileindex++;
-//			  sprintf(filename, "Real-img%d.jpg", fileindex);
-			  sprintf(filename, "Raw-img%d.txt", fileindex);
+			  sprintf(filename, "Real-img%d.jpg", fileindex);
+//			  sprintf(filename, "Raw-img%d.txt", fileindex);
 
 			  //Create or overwrite the current file
 			  HAL_GPIO_TogglePin(GREEN_LED_GPIO_Port, GREEN_LED_Pin);
@@ -214,24 +214,24 @@ void cam_test(void){
 		   printf("Writing file content...\r\n");
 
 			  /*JPEG Encoding with DMA (Not Blocking ) Method */
-//			fxsd_status =  fx_file_write(&fx_file, (uint8_t *)(BUFFER_ADDRESS), BUFFER_SIZE);
-//			if (fxsd_status != FX_SUCCESS)
-//			{
-//				/* Error writing to a file, call error handler.  */
-//				printf("Write failed.\r\n");
-//
-//				Error_Handler();
-//			}
+			fxsd_status =  fx_file_write(&fx_file, (uint8_t *)(BUFFER_ADDRESS), 10U);
+			if (fxsd_status != FX_SUCCESS)
+			{
+				/* Error writing to a file, call error handler.  */
+				printf("Write failed.\r\n");
 
-			  JPEG_Encode_DMA_IT(&hjpeg, BUFFER_ADDRESS, BUFFER_SIZE, (void *)0U);
+				Error_Handler();
+			}
+
+//			  JPEG_Encode_DMA_IT(&hjpeg, BUFFER_ADDRESS, BUFFER_SIZE, (void *)0U);
 
 //			wait for encoding to finish
-			printf("Image compression...\r\n");
+//			printf("Image compression...\r\n");
 
-			  do{
-				JPEG_EncodeInputHandler(&hjpeg);
-				jpeg_encode_processing_end = JPEG_EncodeOutputHandler(&hjpeg);
-			  }while(jpeg_encode_processing_end == 0);
+//			  do{
+//				JPEG_EncodeInputHandler(&hjpeg);
+//				jpeg_encode_processing_end = JPEG_EncodeOutputHandler(&hjpeg);
+//			  }while(jpeg_encode_processing_end == 0);
 
 			  /* Close the test file.  */
 		    	printf("fx_media_flushing...\r\n");
