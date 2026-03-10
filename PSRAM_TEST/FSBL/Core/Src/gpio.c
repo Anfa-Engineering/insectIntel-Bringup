@@ -65,7 +65,7 @@ void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(CAM_EN_GPIO_Port, CAM_EN_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(NRST_CAM_GPIO_Port, NRST_CAM_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(NRST_CAM_GPIO_Port, NRST_CAM_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, LTE_PWR_KEY_Pin|LTE_PWR_EN_Pin, GPIO_PIN_RESET);

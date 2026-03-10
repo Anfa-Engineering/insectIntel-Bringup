@@ -22,6 +22,7 @@
 
 /* USER CODE BEGIN 0 */
 #include "imx335_reg.h"
+#include "main.h"
 #define DIV_FACTOR(SRC, DST) (((uint32_t)((1024 * DST) / SRC)) > 1023 ? 1023 : ((uint32_t)((1024 * DST) / SRC)))
 
 /* Calculate down scale ratio in unsigned 3.13 fixed-point format */
@@ -91,6 +92,11 @@ void MX_DCMIPP_Init(void)
     Error_Handler();
   }
 
+	if(HAL_DCMIPP_PIPE_EnableDownsize(&hdcmipp, DCMIPP_PIPE1) != HAL_OK)
+	{
+	  Error_Handler();
+	}
+
   /* USER CODE END DCMIPP_Init 2 */
 
 }
@@ -102,6 +108,7 @@ void HAL_DCMIPP_MspInit(DCMIPP_HandleTypeDef* dcmippHandle)
   if(dcmippHandle->Instance==DCMIPP)
   {
   /* USER CODE BEGIN DCMIPP_MspInit 0 */
+
 
   /* USER CODE END DCMIPP_MspInit 0 */
 
@@ -133,7 +140,7 @@ void HAL_DCMIPP_MspInit(DCMIPP_HandleTypeDef* dcmippHandle)
 
 	/* Camera sensor Power-On sequence */
 	/* Assert the camera Enable and NRST pins */
-
+//	HAL_GPIO_WritePin(NRST_CAM_GPIO_Port, NRST_CAM_Pin, GPIO_PIN_SET);
 	HAL_GPIO_WritePin(CAM_EN_GPIO_Port, CAM_EN_Pin, GPIO_PIN_RESET);
 	HAL_Delay(500);   /* NRST and Enable signals asserted during 200ms */
 
@@ -142,6 +149,7 @@ void HAL_DCMIPP_MspInit(DCMIPP_HandleTypeDef* dcmippHandle)
 	HAL_Delay(5);
 	HAL_GPIO_WritePin(NRST_CAM_GPIO_Port, NRST_CAM_Pin, GPIO_PIN_SET);
 
+    /* SRAM3 and SRAM4 memories clock enable */
 
   /* USER CODE END DCMIPP_MspInit 1 */
   }

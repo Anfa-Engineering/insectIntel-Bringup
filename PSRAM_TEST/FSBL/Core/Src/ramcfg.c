@@ -38,11 +38,11 @@ void MX_RAMCFG_Init(void)
   /* USER CODE END RAMCFG_Init 0 */
 
   /* USER CODE BEGIN RAMCFG_Init 1 */
+//  LL_MEM_EnableClock(LL_MEM_AXISRAM2);
   LL_MEM_EnableClock(LL_MEM_AXISRAM3);
   LL_MEM_EnableClock(LL_MEM_AXISRAM4);
   LL_MEM_EnableClock(LL_MEM_AXISRAM5);
   LL_MEM_EnableClock(LL_MEM_AXISRAM6);
-
 
   /* USER CODE END RAMCFG_Init 1 */
 
@@ -83,7 +83,6 @@ void MX_RAMCFG_Init(void)
   HAL_RAMCFG_EnableAXISRAM(&hramcfg_SRAM4);
   HAL_RAMCFG_EnableAXISRAM(&hramcfg_SRAM5);
   HAL_RAMCFG_EnableAXISRAM(&hramcfg_SRAM6);
-
   /* USER CODE END RAMCFG_Init 2 */
 
 }
@@ -92,6 +91,7 @@ void HAL_RAMCFG_MspInit(RAMCFG_HandleTypeDef* ramcfgHandle)
 {
 
   /* USER CODE BEGIN RAMCFG_MspInit 0 */
+//	 HAL_RAMCFG_EnableAXISRAM(ramcfgHandle);
 
   /* USER CODE END RAMCFG_MspInit 0 */
     /* RAMCFG clock enable */

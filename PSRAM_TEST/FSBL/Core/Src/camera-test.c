@@ -116,7 +116,7 @@ void cam_test(void){
 		}
 
 //		*((uint8_t *)BUFFER_ADDRESS) = 0xFFU;
-		printf("%lX\r", *((uint32_t *)BUFFER_ADDRESS));
+//		printf("%lX\r", *((uint32_t *)BUFFER_ADDRESS));
 //		printf("Hey there!\r\n");
 
 			//SD-CARD logic

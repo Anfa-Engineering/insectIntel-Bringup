@@ -66,8 +66,8 @@ typedef funcptr funcptr_NS;
 /* USER CODE BEGIN EM */
 #define CAMERA_IMX335_ADDRESS 0x34U
 
-//#define BUFFER_ADDRESS  0x34200000U
-#define BUFFER_ADDRESS  0x90000000U
+#define BUFFER_ADDRESS  0x34200000U
+//#define BUFFER_ADDRESS  0x90000000U
 
 //Meduim Sized Image
 #define BUFFER_HEIGHT 480U
