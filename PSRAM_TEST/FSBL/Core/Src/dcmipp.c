@@ -133,14 +133,15 @@ void HAL_DCMIPP_MspInit(DCMIPP_HandleTypeDef* dcmippHandle)
 
 	/* Camera sensor Power-On sequence */
 	/* Assert the camera Enable and NRST pins */
-	HAL_GPIO_WritePin(NRST_CAM_GPIO_Port, NRST_CAM_Pin, GPIO_PIN_SET);
-	HAL_GPIO_WritePin(CAM_EN_GPIO_Port, CAM_EN_Pin, GPIO_PIN_RESET);
 
-	HAL_Delay(200);   /* NRST and Enable signals asserted during 200ms */
+	HAL_GPIO_WritePin(CAM_EN_GPIO_Port, CAM_EN_Pin, GPIO_PIN_RESET);
+	HAL_Delay(500);   /* NRST and Enable signals asserted during 200ms */
 
 	/* De-assert the camera STANDBY pin (active high) */
 	HAL_GPIO_WritePin(CAM_EN_GPIO_Port, CAM_EN_Pin, GPIO_PIN_SET);
 	HAL_Delay(5);
+	HAL_GPIO_WritePin(NRST_CAM_GPIO_Port, NRST_CAM_Pin, GPIO_PIN_SET);
+
 
   /* USER CODE END DCMIPP_MspInit 1 */
   }
