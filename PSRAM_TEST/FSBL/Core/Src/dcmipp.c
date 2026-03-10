@@ -21,7 +21,13 @@
 #include "dcmipp.h"
 
 /* USER CODE BEGIN 0 */
+#include "imx335_reg.h"
+#define DIV_FACTOR(SRC, DST) (((uint32_t)((1024 * DST) / SRC)) > 1023 ? 1023 : ((uint32_t)((1024 * DST) / SRC)))
 
+/* Calculate down scale ratio in unsigned 3.13 fixed-point format */
+#define DOWNSCALE_RATIO(SRC, DST) (((uint32_t)(((float_t)(SRC) / (float_t)(DST)) * 8192) < 8192) ? 8192 : \
+                                   ((((uint32_t)(((float_t)(SRC) / (float_t)(DST)) * 8192)) > 65535) ? 65535 : \
+                                   ((uint32_t)(((float_t)(SRC) / (float_t)(DST)) * 8192))))
 /* USER CODE END 0 */
 
 DCMIPP_HandleTypeDef hdcmipp;
@@ -73,12 +79,13 @@ void MX_DCMIPP_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN DCMIPP_Init 2 */
-  DonwsizeConf.HRatio      = 25656U;
-  DonwsizeConf.VRatio      = 33161U;
-  DonwsizeConf.HSize       = 800U;
-  DonwsizeConf.VSize       = 480U;
-  DonwsizeConf.HDivFactor  = 316U;
-  DonwsizeConf.VDivFactor  = 253U;
+  DonwsizeConf.HSize       = 800; /* Destination Image Width  */
+  DonwsizeConf.VSize       = 480; /* Destination Image Height */
+  DonwsizeConf.HRatio      = DOWNSCALE_RATIO(IMX335_WIDTH, DonwsizeConf.HSize);
+  DonwsizeConf.VRatio      = DOWNSCALE_RATIO(IMX335_HEIGHT, DonwsizeConf.VSize);
+  DonwsizeConf.HDivFactor  = DIV_FACTOR(IMX335_WIDTH, DonwsizeConf.HSize);
+  DonwsizeConf.VDivFactor  = DIV_FACTOR(IMX335_HEIGHT, DonwsizeConf.VSize);
+
   if(HAL_DCMIPP_PIPE_SetDownsizeConfig(&hdcmipp, DCMIPP_PIPE1, &DonwsizeConf) != HAL_OK)
   {
     Error_Handler();

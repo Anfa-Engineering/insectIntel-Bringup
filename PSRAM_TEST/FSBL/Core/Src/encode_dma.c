@@ -166,10 +166,15 @@ uint32_t JPEG_EncodeOutputHandler(JPEG_HandleTypeDef *hjpeg)
 {
     if(Jpeg_HWEncodingEnd != 0)
     {
+    	printf("Image compression completed.\r\n");
+    	printf("Writing to SD Card.\r\n");
+
 		fxsd_status =  fx_file_write(&fx_file, (uint8_t *)(BUFFER_ADDRESS + BUFFER_SIZE), Jpeg_OUT_BufferTab.DataBufferSize);
 		if (fxsd_status != FX_SUCCESS)
 		{
 			/* Error writing to a file, call error handler.  */
+	    	printf("Write failed.\r\n");
+
 			Error_Handler();
 		}
       return 1;
@@ -246,6 +251,8 @@ void JPEG_EncodeInputHandler(JPEG_HandleTypeDef *hjpeg)
         HAL_JPEG_ConfigInputBuffer(hjpeg,Jpeg_IN_BufferTab.DataBuffer, Jpeg_IN_BufferTab.DataBufferSize);
 
         HAL_JPEG_Resume(hjpeg, JPEG_PAUSE_RESUME_INPUT);
+		printf("JPEG_EncodeInputHandler...\r\n");
+
       }
     }
     else

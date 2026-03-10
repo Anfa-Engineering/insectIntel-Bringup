@@ -177,8 +177,11 @@ void cam_test(void){
 			  if (fxsd_status == FX_SUCCESS || fxsd_status == FX_ALREADY_CREATED)
 			  {
 				 // Either crested of already present i.e good for opening.
+
 				fxsd_status =  fx_file_open(&sdio_disk, &fx_file, filename, FX_OPEN_FOR_WRITE);
 			  }else{
+					printf("\r\nError creating file\r\n");
+
 
 				  /* Error performing file creation excluding FX_ALREADY_CREATED, call error handler.  */
 				  Error_Handler();
@@ -188,9 +191,12 @@ void cam_test(void){
 			  if (fxsd_status != FX_SUCCESS)
 			  {
 				/* Error opening file, call error handler.  */
+				printf("File System opening error\r\n");
+
 				Error_Handler();
 
 			  }
+				printf("File seeking...\r\n");
 
 			  /* Seek to the beginning of the test file.  */
 			  fxsd_status =  fx_file_seek(&fx_file, 0);
@@ -199,6 +205,8 @@ void cam_test(void){
 			  if (fxsd_status != FX_SUCCESS)
 			  {
 				/* Error performing file seek, call error handler.  */
+			   printf("Seek Error \r\n");
+
 				Error_Handler();
 			  }
 
@@ -206,27 +214,36 @@ void cam_test(void){
 			  JPEG_Encode_DMA_IT(&hjpeg, BUFFER_ADDRESS, BUFFER_SIZE, (void *)0U);
 
 			//	  wait for encoding to finish
+			printf("Image compression...\r\n");
+
 			  do{
 				JPEG_EncodeInputHandler(&hjpeg);
 				jpeg_encode_processing_end = JPEG_EncodeOutputHandler(&hjpeg);
 			  }while(jpeg_encode_processing_end == 0);
 
 			  /* Close the test file.  */
+		    	printf("fx_media_flushing...\r\n");
+
 			  fxsd_status = fx_media_flush(&sdio_disk);
 
 			  /* Check the file close status.  */
 			  if (fxsd_status != FX_SUCCESS)
 			  {
 				/* Error closing the file, call error handler.  */
+			    printf("fx_media_flush Error.\r\n");
+
 				Error_Handler();
 			  }
 
+			    printf("fx_file_close Closing...\r\n");
 
 			  fxsd_status =  fx_file_close(&fx_file);
 
 			  /* Check the media flush  status.  */
 			  if (fxsd_status != FX_SUCCESS)
 			  {
+				printf("fx_file_close Error...\r\n");
+
 				/* Error closing the file, call error handler.  */
 				Error_Handler();
 			  }
