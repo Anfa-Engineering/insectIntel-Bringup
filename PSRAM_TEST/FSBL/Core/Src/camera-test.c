@@ -88,6 +88,8 @@ void cam_test(void){
 		appliHelpers.SetSensorExposure = SetSensorExposureHelper;
 		appliHelpers.GetSensorExposure = GetSensorExposureHelper;
 
+//		printf("\r%lX", *((uint32_t *)BUFFER_ADDRESS));
+
 		/* Initialize the Image Signal Processing middleware */
 		if(ISP_Init(&hIsp, &hdcmipp, 0, &appliHelpers, ISP_IQParamCacheInit[0]) != ISP_OK)
 		{
@@ -113,8 +115,9 @@ void cam_test(void){
 
 		}
 
-//			*((uint8_t *)BUFFER_ADDRESS) = 0xFFU;
-//			printf("\r%lX", *((uint32_t *)BUFFER_ADDRESS));
+//		*((uint8_t *)BUFFER_ADDRESS) = 0xFFU;
+		printf("%lX\r", *((uint32_t *)BUFFER_ADDRESS));
+//		printf("Hey there!\r\n");
 
 			//SD-CARD logic
 		do{
@@ -162,7 +165,7 @@ void cam_test(void){
 			//	  //reset flag
 			//	  create_file = 0U;
 			//	  uint32_t convertedDataCount;
-//			  uint32_t jpeg_encode_processing_end = 0;
+			  uint32_t jpeg_encode_processing_end = 0;
 			  printf("File creation\r\n");
 
 			  fileindex++;
@@ -212,26 +215,27 @@ void cam_test(void){
 			  }
 
 		   printf("Writing file content...\r\n");
+		   fxsd_status =  fx_file_write(&fx_file, (uint8_t *)(BUFFER_ADDRESS), 10U);
 
 			  /*JPEG Encoding with DMA (Not Blocking ) Method */
-			fxsd_status =  fx_file_write(&fx_file, (uint8_t *)(BUFFER_ADDRESS), 10U);
-			if (fxsd_status != FX_SUCCESS)
-			{
-				/* Error writing to a file, call error handler.  */
-				printf("Write failed.\r\n");
+//			fxsd_status =  fx_file_write(&fx_file, (uint8_t *)(BUFFER_ADDRESS), 10U);
+//			if (fxsd_status != FX_SUCCESS)
+//			{
+//				/* Error writing to a file, call error handler.  */
+//				printf("Write failed.\r\n");
+//
+//				Error_Handler();
+//			}
 
-				Error_Handler();
-			}
-
-//			  JPEG_Encode_DMA_IT(&hjpeg, BUFFER_ADDRESS, BUFFER_SIZE, (void *)0U);
+			  JPEG_Encode_DMA_IT(&hjpeg, BUFFER_ADDRESS, BUFFER_SIZE, (void *)0U);
 
 //			wait for encoding to finish
-//			printf("Image compression...\r\n");
+			printf("Image compression...\r\n");
 
-//			  do{
-//				JPEG_EncodeInputHandler(&hjpeg);
-//				jpeg_encode_processing_end = JPEG_EncodeOutputHandler(&hjpeg);
-//			  }while(jpeg_encode_processing_end == 0);
+			  do{
+				JPEG_EncodeInputHandler(&hjpeg);
+				jpeg_encode_processing_end = JPEG_EncodeOutputHandler(&hjpeg);
+			  }while(jpeg_encode_processing_end == 0);
 
 			  /* Close the test file.  */
 		    	printf("fx_media_flushing...\r\n");

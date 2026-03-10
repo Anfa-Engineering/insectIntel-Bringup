@@ -38,7 +38,6 @@ void MX_RAMCFG_Init(void)
   /* USER CODE END RAMCFG_Init 0 */
 
   /* USER CODE BEGIN RAMCFG_Init 1 */
-//  LL_MEM_EnableClock(LL_MEM_AXISRAM2);
   LL_MEM_EnableClock(LL_MEM_AXISRAM3);
   LL_MEM_EnableClock(LL_MEM_AXISRAM4);
   LL_MEM_EnableClock(LL_MEM_AXISRAM5);
