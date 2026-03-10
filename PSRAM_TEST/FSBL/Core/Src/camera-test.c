@@ -214,8 +214,8 @@ void cam_test(void){
 				Error_Handler();
 			  }
 
-		   printf("Writing file content...\r\n");
-		   fxsd_status =  fx_file_write(&fx_file, (uint8_t *)(BUFFER_ADDRESS), 10U);
+//		   printf("Writing file content...\r\n");
+//		   fxsd_status =  fx_file_write(&fx_file, (uint8_t *)(BUFFER_ADDRESS), 10U);
 
 			  /*JPEG Encoding with DMA (Not Blocking ) Method */
 //			fxsd_status =  fx_file_write(&fx_file, (uint8_t *)(BUFFER_ADDRESS), 10U);
