@@ -210,16 +210,27 @@ void cam_test(void){
 				Error_Handler();
 			  }
 
+		   printf("Writing file content...\r\n");
+
 			  /*JPEG Encoding with DMA (Not Blocking ) Method */
-			  JPEG_Encode_DMA_IT(&hjpeg, BUFFER_ADDRESS, BUFFER_SIZE, (void *)0U);
+			fxsd_status =  fx_file_write(&fx_file, (uint8_t *)(BUFFER_ADDRESS), BUFFER_SIZE);
+			if (fxsd_status != FX_SUCCESS)
+			{
+				/* Error writing to a file, call error handler.  */
+				printf("Write failed.\r\n");
 
+				Error_Handler();
+			}
+
+//			  JPEG_Encode_DMA_IT(&hjpeg, BUFFER_ADDRESS, BUFFER_SIZE, (void *)0U);
+//
 			//	  wait for encoding to finish
-			printf("Image compression...\r\n");
-
-			  do{
-				JPEG_EncodeInputHandler(&hjpeg);
-				jpeg_encode_processing_end = JPEG_EncodeOutputHandler(&hjpeg);
-			  }while(jpeg_encode_processing_end == 0);
+//			printf("Image compression...\r\n");
+//
+//			  do{
+//				JPEG_EncodeInputHandler(&hjpeg);
+//				jpeg_encode_processing_end = JPEG_EncodeOutputHandler(&hjpeg);
+//			  }while(jpeg_encode_processing_end == 0);
 
 			  /* Close the test file.  */
 		    	printf("fx_media_flushing...\r\n");
