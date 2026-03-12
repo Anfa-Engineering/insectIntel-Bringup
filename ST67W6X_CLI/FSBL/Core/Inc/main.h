@@ -87,8 +87,8 @@ void Error_Handler(void);
 #define USER_BUTTON_EXTI_IRQn EXTI12_IRQn
 #define BOOT_Pin GPIO_PIN_5
 #define BOOT_GPIO_Port GPIOD
-#define SPI_CS_Pin GPIO_PIN_11
-#define SPI_CS_GPIO_Port GPIOE
+#define SPI_CS_Pin GPIO_PIN_0
+#define SPI_CS_GPIO_Port GPIOB
 #define SPI_RDY_Pin GPIO_PIN_6
 #define SPI_RDY_GPIO_Port GPIOF
 #define SPI_RDY_EXTI_IRQn EXTI6_IRQn
