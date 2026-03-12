@@ -195,6 +195,10 @@ void main_app(void)
 
   /* USER CODE BEGIN main_app_3 */
 
+  while(1){
+      vTaskDelay(pdMS_TO_TICKS(2000));
+  }
+
   /* Run a Wi-Fi scan to retrieve the list of all nearby Access Points */
   scan_event_flags = xEventGroupCreate();
   W6X_WiFi_Scan(&Opts, &APP_wifi_scan_cb);
