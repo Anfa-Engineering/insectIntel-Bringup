@@ -94,6 +94,8 @@ void Error_Handler(void);
 #define SPI_RDY_EXTI_IRQn EXTI6_IRQn
 #define CHIP_EN1_Pin GPIO_PIN_1
 #define CHIP_EN1_GPIO_Port GPIOA
+#define ESP32_EN_Pin GPIO_PIN_15
+#define ESP32_EN_GPIO_Port GPIOG
 #define SPI_MISO_Pin GPIO_PIN_1
 #define SPI_MISO_GPIO_Port GPIOG
 #define LED_GREEN_Pin GPIO_PIN_0

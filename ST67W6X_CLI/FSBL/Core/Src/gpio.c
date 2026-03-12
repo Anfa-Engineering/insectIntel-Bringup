@@ -64,6 +64,9 @@ void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOA, CHIP_EN1_Pin|SPI_CS0_Pin|CHIP_EN_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(ESP32_EN_GPIO_Port, ESP32_EN_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOG, LED_GREEN_Pin|LED_RED_Pin|LED_BLUE_Pin, GPIO_PIN_SET);
 
   /*Configure the EXTI line attribute */
@@ -121,8 +124,8 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : LED_GREEN_Pin LED_RED_Pin LED_BLUE_Pin */
-  GPIO_InitStruct.Pin = LED_GREEN_Pin|LED_RED_Pin|LED_BLUE_Pin;
+  /*Configure GPIO pins : ESP32_EN_Pin LED_GREEN_Pin LED_RED_Pin LED_BLUE_Pin */
+  GPIO_InitStruct.Pin = ESP32_EN_Pin|LED_GREEN_Pin|LED_RED_Pin|LED_BLUE_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
