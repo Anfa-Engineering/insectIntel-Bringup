@@ -69,6 +69,10 @@ typedef funcptr funcptr_NS;
 //#define BUFFER_ADDRESS  0x34200000U
 #define BUFFER_ADDRESS  0x90000000U
 
+
+#define NPU_RAM_ADDRESS  0x34200000U
+#define NPU_RAM_SIZE 488U * 4U
+
 //Meduim Sized Image
 //#define BUFFER_HEIGHT 480U
 //#define BUFFER_WIDTH 800U
@@ -77,7 +81,7 @@ typedef funcptr funcptr_NS;
 //#define BUFFER_WIDTH 2592U
 
 #define BUFFER_HEIGHT 1000U
-#define BUFFER_WIDTH 1900U
+#define BUFFER_WIDTH 1600U
 
 #define BUFFER_SIZE BUFFER_HEIGHT * BUFFER_WIDTH * 2U
 

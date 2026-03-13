@@ -227,11 +227,11 @@ void cam_test(void){
 //				Error_Handler();
 //			}
 
+			  printf("Image compression...\r\n");
+
 			  JPEG_Encode_DMA_IT(&hjpeg, BUFFER_ADDRESS, BUFFER_SIZE, (void *)0U);
 
-//			wait for encoding to finish
-			printf("Image compression...\r\n");
-
+			  //wait for encoding to finish
 			  do{
 				JPEG_EncodeInputHandler(&hjpeg);
 				jpeg_encode_processing_end = JPEG_EncodeOutputHandler(&hjpeg);
