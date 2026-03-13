@@ -100,7 +100,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     }else if (huart->Instance == USART3){
         rb_put(rx3_byte);  // store byte safely
         //	sign of life
-        HAL_GPIO_TogglePin(GREEN_LED_GPIO_Port, GREEN_LED_Pin);
+        //HAL_GPIO_TogglePin(GREEN_LED_GPIO_Port, GREEN_LED_Pin);
         HAL_UART_Receive_IT(&huart3, &rx3_byte, 1); // restart RX
     }
 }
