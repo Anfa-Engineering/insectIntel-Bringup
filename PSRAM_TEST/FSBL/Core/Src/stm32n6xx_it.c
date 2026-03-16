@@ -70,6 +70,8 @@ extern XSPI_HandleTypeDef hxspi1;
 //extern uint32_t takeSnap;
 extern SD_ConnectionStateTypeDef cardstaus;
 extern uint8_t create_file;
+extern uint8_t changebauderate;
+
 
 /* USER CODE END EV */
 
@@ -237,6 +239,8 @@ void SysTick_Handler(void)
 	   }
 	   if ((tmp & buttons.depressed & USER_BUTTON1_Pin) && cardstaus == CARD_STATUS_CONNECTED){
 		   create_file = 1U;
+		   changebauderate = 1U;
+
 //		   takeSnap = 1U;
 	   }
    }

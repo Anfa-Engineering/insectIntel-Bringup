@@ -16,6 +16,7 @@
 
 #include "main.h"
 #include  <stdio.h>
+#include <string.h>
 #include "usart.h"
 
 #ifdef LTE_TEST_UART
@@ -36,6 +37,7 @@ static uint8_t  rb_empty(void);
 static uint16_t rb_available(void);
 static void     rb_put(uint8_t b);
 
+uint8_t changebauderate = 0U;
 
 void lte_test(void){
 		//
@@ -69,6 +71,47 @@ void lte_test(void){
 		        }else {
 					usart3Tail2 =  (usart3Tail + len) % RX_BUFFER_SIZE;
 				}
+
+		    }
+
+
+		    if (changebauderate){
+		    	HAL_StatusTypeDef hal_status;
+
+		    	changebauderate = 0;
+
+		    	char * atMainBaudrate_cfg = "AT+CBAUD=250000\r";
+		    	hal_status = HAL_UART_Transmit(&huart3, (uint8_t *)atMainBaudrate_cfg, strlen(atMainBaudrate_cfg), 100U);
+		    	if (hal_status != HAL_OK) {
+		    	    Error_Handler();
+		    	}
+
+		    	//Wait for the okay signal
+		    	HAL_Delay(1000U);
+
+
+		    	hal_status = HAL_UART_DeInit(&huart3);
+		    	if (hal_status  != HAL_OK) {
+		    	    Error_Handler();
+		    	}
+
+		    	//Change the baudrate
+		    	huart3.Init.BaudRate = 250000U;
+
+		    	//Reinitilize
+		    	hal_status = HAL_UART_Init(&huart3);
+		    	if (hal_status != HAL_OK) {
+		    	    Error_Handler();
+		    	}
+
+		    	HAL_NVIC_EnableIRQ(USART3_IRQn);
+		    	HAL_Delay(1000U);
+
+		    	hal_status = HAL_UART_Receive_IT(&huart3, &rx3_byte, 1U);
+
+		    	if (hal_status != HAL_OK) {
+		    	    Error_Handler();
+		    	}
 
 		    }
 		}
