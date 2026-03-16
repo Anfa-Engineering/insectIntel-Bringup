@@ -160,9 +160,6 @@ extern void lte_test_usb(void);
 #define TRACED0_GPIO_Port GPIOE
 #define PWR_SD_EN_Pin GPIO_PIN_7
 #define PWR_SD_EN_GPIO_Port GPIOQ
-#define LTE_RX_GPIO_Pin GPIO_PIN_9
-#define LTE_RX_GPIO_GPIO_Port GPIOD
-#define LTE_RX_GPIO_EXTI_IRQn EXTI9_IRQn
 #define SD_SEL_Pin GPIO_PIN_5
 #define SD_SEL_GPIO_Port GPIOO
 #define GREEN_LED_Pin GPIO_PIN_1

@@ -133,12 +133,6 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(PWR_SD_EN_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : LTE_RX_GPIO_Pin */
-  GPIO_InitStruct.Pin = LTE_RX_GPIO_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(LTE_RX_GPIO_GPIO_Port, &GPIO_InitStruct);
-
   /*Configure GPIO pins : SD_SEL_Pin GREEN_LED_Pin */
   GPIO_InitStruct.Pin = SD_SEL_Pin|GREEN_LED_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -187,13 +181,6 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   GPIO_InitStruct.Alternate = GPIO_AF4_I2C2;
   HAL_GPIO_Init(I2C2_SCL_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure the EXTI line attribute */
-  HAL_EXTI_ConfigLineAttributes(EXTI_LINE_9, EXTI_LINE_SEC);
-
-  /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(LTE_RX_GPIO_EXTI_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(LTE_RX_GPIO_EXTI_IRQn);
 
 }
 

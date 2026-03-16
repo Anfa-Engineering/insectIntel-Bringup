@@ -251,21 +251,6 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
-  * @brief This function handles EXTI Line9 interrupt.
-  */
-void EXTI9_IRQHandler(void)
-{
-  /* USER CODE BEGIN EXTI9_IRQn 0 */
-
-  /* USER CODE END EXTI9_IRQn 0 */
-  HAL_GPIO_EXTI_IRQHandler(LTE_RX_GPIO_Pin);
-  /* USER CODE BEGIN EXTI9_IRQn 1 */
-  HAL_GPIO_TogglePin(GREEN_LED_GPIO_Port, GREEN_LED_Pin);
-
-  /* USER CODE END EXTI9_IRQn 1 */
-}
-
-/**
   * @brief This function handles DCMIPP global interrupt.
   */
 void DCMIPP_IRQHandler(void)
