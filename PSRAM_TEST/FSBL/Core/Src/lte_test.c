@@ -80,7 +80,7 @@ void lte_test(void){
 
 		    	changebauderate = 0;
 
-		    	char * atMainBaudrate_cfg = "AT+CBAUD=250000\r";
+		    	char * atMainBaudrate_cfg = "AT+CBAUD=921600\r";
 		    	hal_status = HAL_UART_Transmit(&huart3, (uint8_t *)atMainBaudrate_cfg, strlen(atMainBaudrate_cfg), 100U);
 		    	if (hal_status != HAL_OK) {
 		    	    Error_Handler();
@@ -96,7 +96,7 @@ void lte_test(void){
 		    	}
 
 		    	//Change the baudrate
-		    	huart3.Init.BaudRate = 250000U;
+		    	huart3.Init.BaudRate = 921600U;
 
 		    	//Reinitilize
 		    	hal_status = HAL_UART_Init(&huart3);

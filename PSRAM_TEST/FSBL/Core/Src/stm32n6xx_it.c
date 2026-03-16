@@ -237,7 +237,8 @@ void SysTick_Handler(void)
 	   if (tmp & SD_DET_Pin){
 		   cardstaus = CARD_STATUS_CHANGED;
 	   }
-	   if ((tmp & buttons.depressed & USER_BUTTON1_Pin) && cardstaus == CARD_STATUS_CONNECTED){
+//	   if ((tmp & buttons.depressed & USER_BUTTON1_Pin) && cardstaus == CARD_STATUS_CONNECTED){
+	   if ((tmp & buttons.depressed & USER_BUTTON1_Pin)){
 		   create_file = 1U;
 		   changebauderate = 1U;
 
