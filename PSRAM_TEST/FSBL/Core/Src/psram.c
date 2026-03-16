@@ -62,8 +62,8 @@ void psram_test(void){
 
 	   if (*mem_addr != aTxBuffer[index])
 	   {
-		printf("\r\nError\r\n");
-		Error_Handler();
+//		printf("\r\nError\r\n");
+//		Error_Handler();
 		 errorBuffer++;
 	   }
 
@@ -77,9 +77,13 @@ void psram_test(void){
 	}
 	if (errorBuffer == 0)
 	{
+	    printf("\r\n\r\n\r\nSuccess\r\n");
+
 	 /* Turn GREEN on */
+	}else {
+		printf("\r\n\r\n\r\nFailure\r\n");
+
 	}
-	printf("\r\n\r\n\r\nSuccess\r\n");
 
 }
 

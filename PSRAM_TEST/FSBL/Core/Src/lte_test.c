@@ -19,6 +19,8 @@
 #include <string.h>
 #include "usart.h"
 
+uint8_t changebauderate = 0U;
+
 #ifdef LTE_TEST_UART
 #define RX_BUFFER_SIZE 128U
 
@@ -36,8 +38,6 @@ volatile uint16_t usart3Tail2 = 0;
 static uint8_t  rb_empty(void);
 static uint16_t rb_available(void);
 static void     rb_put(uint8_t b);
-
-uint8_t changebauderate = 0U;
 
 void lte_test(void){
 		//
