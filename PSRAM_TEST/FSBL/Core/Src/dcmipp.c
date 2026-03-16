@@ -80,12 +80,17 @@ void MX_DCMIPP_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN DCMIPP_Init 2 */
-  DonwsizeConf.HSize       = 800; /* Destination Image Width  */
-  DonwsizeConf.VSize       = 480; /* Destination Image Height */
+  // Reset the pipe config
+  MODIFY_REG(hdcmipp.Instance->P1PPM0PR, DCMIPP_P1PPM0PR_PITCH,
+  			PIXEL_PIPE_PITCH << DCMIPP_P1PPM0PR_PITCH_Pos);
+
+  DonwsizeConf.HSize       = BUFFER_WIDTH; /* Destination Image Width  */
+  DonwsizeConf.VSize       = BUFFER_HEIGHT; /* Destination Image Height */
   DonwsizeConf.HRatio      = DOWNSCALE_RATIO(IMX335_WIDTH, DonwsizeConf.HSize);
   DonwsizeConf.VRatio      = DOWNSCALE_RATIO(IMX335_HEIGHT, DonwsizeConf.VSize);
   DonwsizeConf.HDivFactor  = DIV_FACTOR(IMX335_WIDTH, DonwsizeConf.HSize);
   DonwsizeConf.VDivFactor  = DIV_FACTOR(IMX335_HEIGHT, DonwsizeConf.VSize);
+
 
   if(HAL_DCMIPP_PIPE_SetDownsizeConfig(&hdcmipp, DCMIPP_PIPE1, &DonwsizeConf) != HAL_OK)
   {

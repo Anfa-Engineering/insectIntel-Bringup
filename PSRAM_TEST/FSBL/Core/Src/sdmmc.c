@@ -43,7 +43,7 @@ void MX_SDMMC2_SD_Init(void)
   hsd2.Init.ClockPowerSave = SDMMC_CLOCK_POWER_SAVE_DISABLE;
   hsd2.Init.BusWide = SDMMC_BUS_WIDE_4B;
   hsd2.Init.HardwareFlowControl = SDMMC_HARDWARE_FLOW_CONTROL_DISABLE;
-  hsd2.Init.ClockDiv = 0;
+  hsd2.Init.ClockDiv = 2;
   if (HAL_SD_Init(&hsd2) != HAL_OK)
   {
     Error_Handler();
@@ -62,13 +62,12 @@ void HAL_SD_MspInit(SD_HandleTypeDef* sdHandle)
   if(sdHandle->Instance==SDMMC2)
   {
   /* USER CODE BEGIN SDMMC2_MspInit 0 */
-
-	//Provide power to the sdcard peripheral
+  //Provide power to the sdcard peripheral
 	HAL_PWREx_EnableVddIO5();
-	//Power the sd card
+ //Power the sd card
 	HAL_GPIO_WritePin(PWR_SD_EN_GPIO_Port, PWR_SD_EN_Pin, GPIO_PIN_SET);
 
-	//Set voltage setting
+//Set voltage setting
 	HAL_PWREx_ConfigVddIORange(PWR_VDDIO5,PWR_VDDIO_RANGE_3V3);
 
   /* USER CODE END SDMMC2_MspInit 0 */
@@ -146,14 +145,9 @@ void HAL_SD_MspDeInit(SD_HandleTypeDef* sdHandle)
     /* SDMMC2 interrupt Deinit */
     HAL_NVIC_DisableIRQ(SDMMC2_IRQn);
   /* USER CODE BEGIN SDMMC2_MspDeInit 1 */
-    //Power the sd card
-   	HAL_GPIO_WritePin(PWR_SD_EN_GPIO_Port, PWR_SD_EN_Pin, GPIO_PIN_RESET);
 
-    //Provide power to the sdcard peripheral
-  	HAL_PWREx_DisableVddIO5();
-
-  //Set voltage setting
-//  	HAL_PWREx_ConfigVddIORange(PWR_VDDIO5,PWR_VDDIO_RANGE_3V3);
+//  POWER DOWN THE SD CARD
+	HAL_GPIO_WritePin(PWR_SD_EN_GPIO_Port, PWR_SD_EN_Pin, GPIO_PIN_RESET);
 
   /* USER CODE END SDMMC2_MspDeInit 1 */
   }

@@ -57,7 +57,7 @@ extern FX_MEDIA        sdio_disk;
 #endif
 
 #define MAX_INPUT_WIDTH          BUFFER_WIDTH                    /* Set the Maximum of BMP images Width to be tested */
-#define MAX_INPUT_LINES          16U                     /* Set Input buffer lines to 16 for YCbCr420, and 8 for YCbCr422 and YCbCr444 (to save RAM space) */
+#define MAX_INPUT_LINES          120U                     /* Set Input buffer lines to 16 for YCbCr420, and 8 for YCbCr422 and YCbCr444 (to save RAM space) */
 
 
 #define CHUNK_SIZE_IN   ((uint32_t)(MAX_INPUT_WIDTH * (BYTES_PER_PIXEL + 1U) * MAX_INPUT_LINES))
@@ -80,10 +80,12 @@ uint8_t MCU_Data_IntBuffer0[CHUNK_SIZE_IN];
 uint8_t JPEG_Data_OutBuffer0[CHUNK_SIZE_OUT];
 //uint8_t JPEG_Data_OutBuffer1[CHUNK_SIZE_OUT];
 
+//JPEG_Data_BufferTypeDef Jpeg_OUT_BufferTab = {JPEG_BUFFER_EMPTY , (uint8_t *)(NPU_RAM_ADDRESS + (NPU_RAM_SIZE / 2U)) , 0};
 JPEG_Data_BufferTypeDef Jpeg_OUT_BufferTab = {JPEG_BUFFER_EMPTY , (uint8_t *)(BUFFER_ADDRESS + BUFFER_SIZE) , 0};
 
 //JPEG_Data_BufferTypeDef Jpeg_IN_BufferTab = {JPEG_BUFFER_EMPTY , MCU_Data_IntBuffer0, 0};
-JPEG_Data_BufferTypeDef Jpeg_IN_BufferTab = {JPEG_BUFFER_EMPTY , (uint8_t *)(NPU_RAM_ADDRESS + RGB888_RAM_POTION), 0};
+JPEG_Data_BufferTypeDef Jpeg_IN_BufferTab = {JPEG_BUFFER_EMPTY , (uint8_t *)(NPU_RAM_ADDRESS), 0};
+
 
 uint32_t MCU_TotalNb                = 0;
 uint32_t MCU_BlockIndex             = 0;
@@ -142,11 +144,14 @@ uint32_t JPEG_Encode_DMA_IT(JPEG_HandleTypeDef *hjpeg, uint32_t RGBImageBufferAd
   {
     /* Pre-Processing */
 
+	  printf("Image Conversion... ");
+//	  MCU_BlockIndex += pRGBToYCbCr_Convert_Function(((uint8_t *)RGB_InputImageAddress), ((uint8_t *)(RGB_InputImageAddress + BUFFER_SIZE)), 0, BUFFER_SIZE,(uint32_t*) &(Jpeg_IN_BufferTab.DataBufferSize));
 	  MCU_BlockIndex += pRGBToYCbCr_Convert_Function((uint8_t *)(RGB_InputImageAddress + RGB_InputImageIndex), Jpeg_IN_BufferTab.DataBuffer, 0, DataBufferSize,(uint32_t*)(&Jpeg_IN_BufferTab.DataBufferSize));
 //    MCU_BlockIndex += pRGBToYCbCr_Convert_Function(((uint8_t *)RGB_InputImageAddress), Jpeg_IN_BufferTab.DataBuffer, 0, DataBufferSize,(uint32_t*) &(Jpeg_IN_BufferTab.DataBufferSize));
     Jpeg_IN_BufferTab.State = JPEG_BUFFER_FULL;
 
     RGB_InputImageIndex += DataBufferSize;
+//    RGB_InputImageIndex += BUFFER_SIZE;
   }
 
   /* Fill Encoding Params */
@@ -156,6 +161,8 @@ uint32_t JPEG_Encode_DMA_IT(JPEG_HandleTypeDef *hjpeg, uint32_t RGBImageBufferAd
   }
 
   /* Start JPEG encoding with DMA method */
+  printf("Chunk Compression.\r\n");
+//  hal_status = HAL_JPEG_Encode_IT(hjpeg ,((uint8_t *)(RGB_InputImageAddress + BUFFER_SIZE)) , Jpeg_IN_BufferTab.DataBufferSize ,(uint8_t *)NPU_RAM_ADDRESS ,NPU_RAM_SIZE);
   hal_status = HAL_JPEG_Encode_IT(hjpeg ,Jpeg_IN_BufferTab.DataBuffer ,Jpeg_IN_BufferTab.DataBufferSize ,Jpeg_OUT_BufferTab.DataBuffer ,BUFFER_SIZE);
 //  hal_status = HAL_JPEG_Encode_IT(hjpeg ,Jpeg_IN_BufferTab.DataBuffer ,Jpeg_IN_BufferTab.DataBufferSize ,(uint8_t *)(BUFFER_ADDRESS + BUFFER_SIZE) , (uint32_t) BUFFER_SIZE);
   if(hal_status != HAL_OK){
@@ -171,62 +178,31 @@ uint32_t JPEG_Encode_DMA_IT(JPEG_HandleTypeDef *hjpeg, uint32_t RGBImageBufferAd
   */
 uint32_t JPEG_EncodeOutputHandler(JPEG_HandleTypeDef *hjpeg)
 {
-//    if(Jpeg_HWEncodingEnd != 0)
-//    {
-//    	printf("Image compression completed.\r\n");
-//    	printf("Writing to SD Card.\r\n");
-//
-//		fxsd_status =  fx_file_write(&fx_file, (uint8_t *)(BUFFER_ADDRESS + BUFFER_SIZE), Jpeg_OUT_BufferTab.DataBufferSize);
-//		if (fxsd_status != FX_SUCCESS)
-//		{
-//			/* Error writing to a file, call error handler.  */
-//	    	printf("Write failed.\r\n");
-//
-//			Error_Handler();
-//		}
-//      return 1;
-//    }
-//    return 0U;
+
   if(Jpeg_OUT_BufferTab.State == JPEG_BUFFER_FULL)
   {
     /* Copy encoded shunk from Jpeg_OUT_BufferTab to JpegBuffer */
-//    memcpy(pJpegBuffer, Jpeg_OUT_BufferTab.DataBuffer ,Jpeg_OUT_BufferTab.DataBufferSize);
-
-	printf("JPEG_EncodeInputHandler...\r\n");
-
+	printf("Writing chunk to file...\r\n");
 	fxsd_status =  fx_file_write(&fx_file, Jpeg_OUT_BufferTab.DataBuffer, Jpeg_OUT_BufferTab.DataBufferSize);
 	if (fxsd_status != FX_SUCCESS)
 	{
 		/* Error writing to a file, call error handler.  */
 		Error_Handler();
 	}
-
-//	fxsd_status = fx_media_flush(&sdio_disk);
-//
-//	/* Check the media flush  status.  */
-//	if (fxsd_status != FX_SUCCESS)
-//	{
-//		/* Error closing the file, call error handler.  */
-//		Error_Handler();
-//	}
-
 //  pJpegBuffer+= Jpeg_OUT_BufferTab.DataBufferSize/4;
     Jpeg_OUT_BufferTab.State = JPEG_BUFFER_EMPTY;
     Jpeg_OUT_BufferTab.DataBufferSize = 0;
 
     if(Jpeg_HWEncodingEnd != 0)
     {
-//		fxsd_status =  fx_file_write(&fx_file, (uint8_t *)(BUFFER_ADDRESS + BUFFER_SIZE), Jpeg_OUT_BufferTab.DataBufferSize);
-//		if (fxsd_status != FX_SUCCESS)
-//		{
-//			/* Error writing to a file, call error handler.  */
-//			Error_Handler();
-//		}
+  	  printf("Done.🙂🫱🏻‍🫲🏽\r\n");
       return 1;
     }
     else if((Output_Is_Paused == 1) && (Jpeg_OUT_BufferTab.State == JPEG_BUFFER_EMPTY))
     {
       Output_Is_Paused = 0;
+
+	  printf("Chunk Compression...\r\n");
       HAL_JPEG_Resume(hjpeg, JPEG_PAUSE_RESUME_OUTPUT);
     }
   }
@@ -250,6 +226,8 @@ void JPEG_EncodeInputHandler(JPEG_HandleTypeDef *hjpeg)
     if(RGB_InputImageIndex < RGB_InputImageSize_Bytes)
     {
       /* Pre-Processing */
+
+      printf("Chunk Conversion.\t");
       MCU_BlockIndex += pRGBToYCbCr_Convert_Function((uint8_t *)(RGB_InputImageAddress + RGB_InputImageIndex), Jpeg_IN_BufferTab.DataBuffer, 0, DataBufferSize, (uint32_t*)(&Jpeg_IN_BufferTab.DataBufferSize));
       Jpeg_IN_BufferTab.State = JPEG_BUFFER_FULL;
       RGB_InputImageIndex += DataBufferSize;
@@ -259,9 +237,10 @@ void JPEG_EncodeInputHandler(JPEG_HandleTypeDef *hjpeg)
         Input_Is_Paused = 0;
         HAL_JPEG_ConfigInputBuffer(hjpeg,Jpeg_IN_BufferTab.DataBuffer, Jpeg_IN_BufferTab.DataBufferSize);
 
-        HAL_JPEG_Resume(hjpeg, JPEG_PAUSE_RESUME_INPUT);
-		printf("JPEG_EncodeInputHandler...\r\n");
+        printf("Chunk Compression.\r\n");
+		printf("%lu/%lu...\r\n", MCU_BlockIndex, MCU_TotalNb);
 
+        HAL_JPEG_Resume(hjpeg, JPEG_PAUSE_RESUME_INPUT);
       }
     }
     else

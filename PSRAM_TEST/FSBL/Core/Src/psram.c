@@ -29,8 +29,8 @@ void psram_test(void){
 	{
 	printf("\r\n \r\n");
 
-//	 mem_addr = (uint8_t *)(XSPI1_BASE + (index_K * KByte));
-	 mem_addr = (uint8_t *)(0x34200000+ (index_K * KByte));
+	 mem_addr = (uint8_t *)(XSPI1_BASE + (index_K * KByte));
+//	 mem_addr = (uint8_t *)(0x34200000+ (index_K * KByte));
 	 for (index = (index_K  * KByte); index < ((index_K +1) * KByte); index++)
 	 {
 	   *mem_addr = aTxBuffer[index];
@@ -53,8 +53,8 @@ void psram_test(void){
 	{
 	 printf("\r\n \r\n");
 
-//	 mem_addr = (uint8_t *)(XSPI1_BASE + (index_K * KByte));
-	 mem_addr = (uint8_t *)(0x34200000 + (index_K * KByte));
+	 mem_addr = (uint8_t *)(XSPI1_BASE + (index_K * KByte));
+//	 mem_addr = (uint8_t *)(0x34200000 + (index_K * KByte));
 
 	 for (index = (index_K  * KByte); index < ((index_K +1) * KByte); index++)
 	 {
