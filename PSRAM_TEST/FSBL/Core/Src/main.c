@@ -33,6 +33,37 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
+  /* Aps256xx APMemory memory */
+
+  /* Read Operations */
+#define READ_CMD                                0x00
+#define READ_LINEAR_BURST_CMD                   0x20
+#define READ_HYBRID_BURST_CMD                   0x3F
+
+  /* Write Operations */
+#define WRITE_CMD                               0x80
+#define WRITE_LINEAR_BURST_CMD                  0xA0
+#define WRITE_HYBRID_BURST_CMD                  0xBF
+
+  /* Reset Operations */
+#define RESET_CMD                               0xFF
+
+  /* Registers definition */
+#define MR0                                     0x00000000
+#define MR1                                     0x00000001
+#define MR2                                     0x00000002
+#define MR3                                     0x00000003
+#define MR4                                     0x00000004
+#define MR8                                     0x00000008
+
+  /* Register Operations */
+#define READ_REG_CMD                            0x40
+#define WRITE_REG_CMD                           0xC0
+
+
+  /* Size of buffers */
+#define BUFFERSIZE                              10240
+#define KByte                                   1024
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -102,6 +133,12 @@ int main(void)
   MX_DCMIPP_Init();
   MX_XSPI2_Init();
   MX_XSPI1_Init();
+  APS256_GlobalReset(&hxspi1);
+  /* Read Vendor ID to confirm device identity */
+  APS256_ReadVendorID(&hxspi1);
+
+  /* Configure PSRAM for 200MHz X16 operation */
+  APS256_Configure(&hxspi1);
   MX_JPEG_Init();
   MX_FileX_Init();
   MX_EXTMEM_MANAGER_Init();
