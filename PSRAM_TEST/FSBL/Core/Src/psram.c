@@ -58,14 +58,15 @@ void psram_test(void){
 
 	 for (index = (index_K  * KByte); index < ((index_K +1) * KByte); index++)
 	 {
-	   printf("%u, ",*mem_addr);
 
 	   if (*mem_addr != aTxBuffer[index])
-	   {
-		printf("\r\nError\r\n");
-		Error_Handler();
-		 errorBuffer++;
-	   }
+	   	   {
+	   		  printf("%u\t:here,\t ",*mem_addr);
+	   	//		Error_Handler();
+	   		 errorBuffer++;
+	   	   }else {
+	   		   printf("%u, ",*mem_addr);
+	   	   }
 
 	   mem_addr++;
 	 }
@@ -76,10 +77,14 @@ void psram_test(void){
 	 HAL_Delay(1);
 	}
 	if (errorBuffer == 0)
-	{
-	 /* Turn GREEN on */
-	}
-	printf("\r\n\r\n\r\nSuccess\r\n");
+	    {
+	        printf("\r\n\r\n\r\nSuccess\r\n"); // I've replaced the hidden characters with standard spaces here
+	        /* Turn GREEN on */
+	    }
+	    else
+	    {
+	        printf("\r\n\r\n\r\nFailure\r\n");
+	    }
 
 }
 

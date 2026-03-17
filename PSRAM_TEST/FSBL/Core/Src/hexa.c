@@ -129,7 +129,7 @@ HAL_StatusTypeDef APS256_GlobalReset(XSPI_HandleTypeDef *Ctx)
     }
 
     /* Wait tRST >= 2us */
-    HAL_Delay(1);
+    HAL_Delay(2);
 
     printf("APS256_GlobalReset: Reset complete. Re-run APS256_Configure.\r\n");
     return HAL_OK;
@@ -171,17 +171,17 @@ HAL_StatusTypeDef APS256_ReadVendorID(XSPI_HandleTypeDef *Ctx)
     printf("APS256_ReadVendorID: OK - AP Memory confirmed\r\n");
     return HAL_OK;
 }
-
 /**
   * @brief  Configure AP Memory PSRAM registers for 200MHz X16 operation
-  * @note   Configures MR0 (latency/drive), MR4 (write latency), MR8 (burst + X16)
-  *         Each register write is verified by readback.
+  * @note   Reads initial state, configures MR0, MR4, MR8, and verifies.
   * @param  Ctx  XSPI handle pointer
   * @retval HAL status
   */
 HAL_StatusTypeDef APS256_Configure(XSPI_HandleTypeDef *Ctx)
 {
-	uint8_t regW_MR0[2] = {MR0_CONFIG, 0x00};
+    uint8_t regOriginal[2] = {0};
+
+    uint8_t regW_MR0[2] = {MR0_CONFIG, 0x00};
     uint8_t regR_MR0[2] = {0};
 
     uint8_t regW_MR4[2] = {MR4_CONFIG, 0x00};
@@ -191,6 +191,9 @@ HAL_StatusTypeDef APS256_Configure(XSPI_HandleTypeDef *Ctx)
     uint8_t regR_MR8[2] = {0};
 
     /* --- MR0: Read latency + drive strength --- */
+    // Read original value first
+    if (APS256_ReadReg(Ctx, MR0, regOriginal, APS256_READ_LATENCY) != HAL_OK) return HAL_ERROR;
+
     if (APS256_WriteReg(Ctx, MR0, regW_MR0) != HAL_OK)
     {
         printf("APS256_Configure: MR0 write failed\r\n");
@@ -203,15 +206,16 @@ HAL_StatusTypeDef APS256_Configure(XSPI_HandleTypeDef *Ctx)
         return HAL_ERROR;
     }
 
-    if (regR_MR0[0] != regW_MR0[0])
-    {
-        printf("APS256_Configure: MR0 mismatch - wrote 0x%02X, read 0x%02X\r\n",
-               regW_MR0[0], regR_MR0[0]);
-        return HAL_ERROR;
-    }
-    printf("APS256_Configure: MR0 OK (0x%02X)\r\n", regR_MR0[0]);
+    printf("APS256_Configure: MR0 -> Original: 0x%02X, Wrote: 0x%02X, Verified: 0x%02X\r\n",
+           regOriginal[0], regW_MR0[0], regR_MR0[0]);
+
+    if (regR_MR0[0] != regW_MR0[0]) return HAL_ERROR;
+
 
     /* --- MR4: Write latency --- */
+    // Read original value first
+    if (APS256_ReadReg(Ctx, MR4, regOriginal, APS256_READ_LATENCY) != HAL_OK) return HAL_ERROR;
+
     if (APS256_WriteReg(Ctx, MR4, regW_MR4) != HAL_OK)
     {
         printf("APS256_Configure: MR4 write failed\r\n");
@@ -224,15 +228,16 @@ HAL_StatusTypeDef APS256_Configure(XSPI_HandleTypeDef *Ctx)
         return HAL_ERROR;
     }
 
-    if (regR_MR4[0] != regW_MR4[0])
-    {
-        printf("APS256_Configure: MR4 mismatch - wrote 0x%02X, read 0x%02X\r\n",
-               regW_MR4[0], regR_MR4[0]);
-        return HAL_ERROR;
-    }
-    printf("APS256_Configure: MR4 OK (0x%02X)\r\n", regR_MR4[0]);
+    printf("APS256_Configure: MR4 -> Original: 0x%02X, Wrote: 0x%02X, Verified: 0x%02X\r\n",
+           regOriginal[0], regW_MR4[0], regR_MR4[0]);
+
+    if (regR_MR4[0] != regW_MR4[0]) return HAL_ERROR;
+
 
     /* --- MR8: Burst type/length + X16 mode --- */
+    // Read original value first
+    if (APS256_ReadReg(Ctx, MR8, regOriginal, APS256_READ_LATENCY) != HAL_OK) return HAL_ERROR;
+
     if (APS256_WriteReg(Ctx, MR8, regW_MR8) != HAL_OK)
     {
         printf("APS256_Configure: MR8 write failed\r\n");
@@ -245,13 +250,10 @@ HAL_StatusTypeDef APS256_Configure(XSPI_HandleTypeDef *Ctx)
         return HAL_ERROR;
     }
 
-    if (regR_MR8[0] != regW_MR8[0])
-    {
-        printf("APS256_Configure: MR8 mismatch - wrote 0x%02X, read 0x%02X\r\n",
-               regW_MR8[0], regR_MR8[0]);
-        return HAL_ERROR;
-    }
-    printf("APS256_Configure: MR8 OK (0x%02X)\r\n", regR_MR8[0]);
+    printf("APS256_Configure: MR8 -> Original: 0x%02X, Wrote: 0x%02X, Verified: 0x%02X\r\n",
+           regOriginal[0], regW_MR8[0], regR_MR8[0]);
+
+    if (regR_MR8[0] != regW_MR8[0]) return HAL_ERROR;
 
     printf("APS256_Configure: Configuration complete - 200MHz X16 mode ready\r\n");
     return HAL_OK;

@@ -29,6 +29,7 @@
 #include "xspi.h"
 #include "xspim.h"
 #include "gpio.h"
+#include "hexa.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
