@@ -7,7 +7,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2026 STMicroelectronics.
+  * Copyright (c) 2025 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -91,7 +91,7 @@ void MX_EXTMEM_MANAGER_Init(void)
   extmem_list_config[1].ConfigType = EXTMEM_LINK_CONFIG_16LINES;
 
   extmem_list_config[1].PsramObject.psram_public.MemorySize = HAL_XSPI_SIZE_256MB;
-  extmem_list_config[1].PsramObject.psram_public.FreqMax = 200 * 1000000u;
+  extmem_list_config[1].PsramObject.psram_public.FreqMax = 130 * 1000000u;
   extmem_list_config[1].PsramObject.psram_public.NumberOfConfig = 1u;
 
   /* Config */
@@ -114,6 +114,8 @@ void MX_EXTMEM_MANAGER_Init(void)
   EXTMEM_Init(EXTMEMORY_2, HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_XSPI1));
 
   /* USER CODE BEGIN MX_EXTMEM_Init_PostTreatment */
+  // Map the memory
+
   if (EXTMEM_OK != EXTMEM_MemoryMappedMode(EXTMEMORY_1 , EXTMEM_ENABLE))
   {
 	  Error_Handler();
