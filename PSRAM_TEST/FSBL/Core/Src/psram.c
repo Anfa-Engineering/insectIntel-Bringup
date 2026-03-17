@@ -58,13 +58,16 @@ void psram_test(void){
 
 	 for (index = (index_K  * KByte); index < ((index_K +1) * KByte); index++)
 	 {
-	   printf("%u, ",*mem_addr);
 
 	   if (*mem_addr != aTxBuffer[index])
 	   {
-//		printf("\r\nError\r\n");
-//		Error_Handler();
+		  printf("👉👉%u👈👈, ",*mem_addr);
+	//		Error_Handler();
 		 errorBuffer++;
+	   }else {
+
+		   printf("%u, ",*mem_addr);
+
 	   }
 
 	   mem_addr++;
