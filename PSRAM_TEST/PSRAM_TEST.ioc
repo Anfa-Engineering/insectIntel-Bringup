@@ -1541,6 +1541,6 @@ XSPI1.ClockPrescaler=4
 XSPI1.FifoThresholdByte=4
 XSPI1.IPParameters=FifoThresholdByte,MemoryType,MemorySize,ChipSelectHighTimeCycle,ChipSelectBoundary,ClockPrescaler
 XSPI1.MemorySize=HAL_XSPI_SIZE_256MB
-XSPI1.MemoryType=HAL_XSPI_MEMTYPE_APMEM
+XSPI1.MemoryType=HAL_XSPI_MEMTYPE_APMEM_16BITS
 board=NUCLEO-N657X0-Q
 boardIOC=true
