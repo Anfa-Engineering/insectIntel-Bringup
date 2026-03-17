@@ -61,7 +61,7 @@ void psram_test(void){
 
 	   if (*mem_addr != aTxBuffer[index])
 	   {
-		  printf("%u/t👈,/t ",*mem_addr);
+		  printf("%u\t👈,\t ",*mem_addr);
 	//		Error_Handler();
 		 errorBuffer++;
 	   }else {
