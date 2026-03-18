@@ -2,8 +2,9 @@
 #include  <stdio.h>
 
 #ifdef PSRAM_TEST
-#define BUFFERSIZE                              10240
-#define KByte                                   1024
+#define BUFFERSIZE                              1024 * 10U
+#define KByte                                   1024U
+#define MByte                                   KByte *1024U
 
 uint8_t aTxBuffer[BUFFERSIZE];
 __IO uint8_t *mem_addr;
@@ -25,17 +26,20 @@ void psram_test(void){
 
 	/* Writing Sequence ----------------------------------------------- */
 	index_K=0;
+
 	for (index_K = 0; index_K < 10; index_K++)
 	{
-	printf("\r\n \r\n");
+	printf("\r\n\r\n Write-Seq %lu**\r\n\r\n", index_K);
 
 	 mem_addr = (uint8_t *)(XSPI1_BASE + (index_K * KByte));
 //	 mem_addr = (uint8_t *)(0x34200000+ (index_K * KByte));
 	 for (index = (index_K  * KByte); index < ((index_K +1) * KByte); index++)
 	 {
-	   *mem_addr = aTxBuffer[index];
+//		   *mem_addr = aTxBuffer[index];
+		   printf("%u, ",aTxBuffer[index]);
 
-	   printf("%u, ",aTxBuffer[index]);
+		   *mem_addr = 65U;
+		   printf("%u, ",*mem_addr);
 
 	   mem_addr++;
 	 }
@@ -56,22 +60,22 @@ void psram_test(void){
 	 mem_addr = (uint8_t *)(XSPI1_BASE + (index_K * KByte));
 //	 mem_addr = (uint8_t *)(0x34200000 + (index_K * KByte));
 
-	 for (index = (index_K  * KByte); index < ((index_K +1) * KByte); index++)
-	 {
+		 for (index = (index_K  * KByte); index < ((index_K +1) * KByte); index++)
+		 {
 
-	   if (*mem_addr != aTxBuffer[index])
-	   {
-		  printf("%u*,",*mem_addr);
-	//		Error_Handler();
-		 errorBuffer++;
-	   }else {
+			   if (*mem_addr != aTxBuffer[index])
+			   {
+				  printf("%u*,",*mem_addr);
+			//		Error_Handler();
+				 errorBuffer++;
+			   }else {
 
-		   printf("%u, ",*mem_addr);
+				   printf("%u, ",*mem_addr);
 
-	   }
+			   }
 
-	   mem_addr++;
-	 }
+		   mem_addr++;
+		 }
 
 	  /* In memory-mapped mode, not possible to check if the memory is ready
 	 after the programming. So a delay corresponding to max page programming
