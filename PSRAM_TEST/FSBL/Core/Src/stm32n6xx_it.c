@@ -72,6 +72,7 @@ extern XSPI_HandleTypeDef hxspi1;
 extern SD_ConnectionStateTypeDef cardstaus;
 extern uint8_t create_file;
 extern uint8_t changebauderate;
+extern uint8_t reRunpsram_test;
 
 
 /* USER CODE END EV */
@@ -238,11 +239,14 @@ void SysTick_Handler(void)
 	   if (tmp & SD_DET_Pin){
 		   cardstaus = CARD_STATUS_CHANGED;
 	   }
-//	   if ((tmp & buttons.depressed & USER_BUTTON1_Pin) && cardstaus == CARD_STATUS_CONNECTED){
+#ifdef CAM_TEST
+	   if ((tmp & buttons.depressed & USER_BUTTON1_Pin) && cardstaus == CARD_STATUS_CONNECTED){
+#else
 	   if ((tmp & buttons.depressed & USER_BUTTON1_Pin)){
+#endif
 		   create_file = 1U;
 		   changebauderate = 1U;
-
+		   reRunpsram_test = 1U;
 //		   takeSnap = 1U;
 	   }
    }

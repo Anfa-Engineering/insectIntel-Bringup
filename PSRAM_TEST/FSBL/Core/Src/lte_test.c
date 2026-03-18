@@ -59,17 +59,18 @@ void lte_test(void){
 //		HAL_GPIO_WritePin(LTE_DTR2_GPIO_Port, LTE_DTR2_Pin, GPIO_PIN_RESET);
 
 		/* Start reception of 1 byte on each UART */
-		HAL_UART_Receive_IT(&huart1, &rx1_byte, 1);
+		HAL_UART_Receive_IT(&huart1, &rx3_byte, 1);
+		HAL_UART_Receive_IT(&huart4, &rx1_byte, 1);
 //		HAL_UART_Receive_IT(&huart3, &rx3_byte, 1);
-		HAL_UART_Receive_IT(&huart4, &rx3_byte, 1);
+//		HAL_UART_Receive_IT(&huart4, &rx3_byte, 1);
 
 		while(1){
 
-		    if (huart1.gState == HAL_UART_STATE_READY && !rb_empty())
+		    if (huart4.gState == HAL_UART_STATE_READY && !rb_empty())
 		    {
 		        uint16_t len = rb_available();
 
-		        if( HAL_UART_Transmit_IT(&huart1,(uint8_t *)&usart3_buffer[usart3Tail],len) != HAL_OK){
+		        if( HAL_UART_Transmit_IT(&huart4,(uint8_t *)&usart3_buffer[usart3Tail],len) != HAL_OK){
 		        	Error_Handler();
 		        }else {
 					usart3Tail2 =  (usart3Tail + len) % RX_BUFFER_SIZE;
@@ -126,7 +127,7 @@ void lte_test(void){
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 
-    if (huart->Instance == USART1)
+    if (huart->Instance == UART4)
     {
         // Store byte
         usart1_buffer[usart1_index++] = rx1_byte;
@@ -142,19 +143,19 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
         }
 
         // Restart reception
-        HAL_UART_Receive_IT(&huart1, &rx1_byte, 1U);
-    }else if (huart->Instance == UART4){
+        HAL_UART_Receive_IT(&huart4, &rx1_byte, 1U);
+    }else if (huart->Instance == USART1){
         rb_put(rx3_byte);  // store byte safely
         //	sign of life
         //HAL_GPIO_TogglePin(GREEN_LED_GPIO_Port, GREEN_LED_Pin);
-        HAL_UART_Receive_IT(&huart4, &rx3_byte, 1); // restart RX
+        HAL_UART_Receive_IT(&huart1, &rx3_byte, 1); // restart RX
     }
 }
 
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
 
-    if (huart->Instance == USART1)
+    if (huart->Instance == UART4)
     {
         HAL_GPIO_TogglePin(GREEN_LED_GPIO_Port, GREEN_LED_Pin);
 
@@ -166,7 +167,7 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
         if (!rb_empty())
         {
             len = rb_available();
-            if( HAL_UART_Transmit_IT(&huart1,(uint8_t *)&usart3_buffer[usart3Tail],len) != HAL_OK){
+            if( HAL_UART_Transmit_IT(&huart4,(uint8_t *)&usart3_buffer[usart3Tail],len) != HAL_OK){
             	Error_Handler();
             }else {
     			usart3Tail2 =  (usart3Tail + len) % RX_BUFFER_SIZE;
