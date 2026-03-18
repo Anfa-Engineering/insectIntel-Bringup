@@ -36,9 +36,9 @@ void psram_test(void){
 	 for (index = (index_K  * KByte); index < ((index_K +1) * KByte); index++)
 	 {
 //		   *mem_addr = aTxBuffer[index];
-		   printf("%u, ",aTxBuffer[index]);
+//		   printf("%u, ",aTxBuffer[index]);
 
-		   *mem_addr = 65U;
+		   *mem_addr = index;
 		   printf("%u, ",*mem_addr);
 
 	   mem_addr++;
@@ -63,11 +63,12 @@ void psram_test(void){
 		 for (index = (index_K  * KByte); index < ((index_K +1) * KByte); index++)
 		 {
 
-			   if (*mem_addr != aTxBuffer[index])
+//			   if (*mem_addr != aTxBuffer[index])
+			   if (*mem_addr != index)
 			   {
 				  printf("%u*,",*mem_addr);
-			//		Error_Handler();
-				 errorBuffer++;
+			//	  Error_Handler();
+				  errorBuffer++;
 			   }else {
 
 				   printf("%u, ",*mem_addr);

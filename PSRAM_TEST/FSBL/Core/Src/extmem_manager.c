@@ -103,12 +103,12 @@ void MX_EXTMEM_MANAGER_Init(void)
   extmem_list_config[1].PsramObject.psram_public.ReadREG           = 0x40u;
   extmem_list_config[1].PsramObject.psram_public.WriteREG          = 0xC0u;
   extmem_list_config[1].PsramObject.psram_public.ReadREGSize       = 2u;
-  extmem_list_config[1].PsramObject.psram_public.REG_DummyCycle    = 5u;
+  extmem_list_config[1].PsramObject.psram_public.REG_DummyCycle    = 4u;
   extmem_list_config[1].PsramObject.psram_public.Write_command     = 0xA0u;
-  extmem_list_config[1].PsramObject.psram_public.Write_DummyCycle  = 5u;
+  extmem_list_config[1].PsramObject.psram_public.Write_DummyCycle  = 4u;
   extmem_list_config[1].PsramObject.psram_public.Read_command      = 0x20u;
   extmem_list_config[1].PsramObject.psram_public.WrapRead_command  = 0x00u;
-  extmem_list_config[1].PsramObject.psram_public.Read_DummyCycle   = 5u;
+  extmem_list_config[1].PsramObject.psram_public.Read_DummyCycle   = 4u;
 
   EXTMEM_Init(EXTMEMORY_1, HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_XSPI2));
   EXTMEM_Init(EXTMEMORY_2, HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_XSPI1));

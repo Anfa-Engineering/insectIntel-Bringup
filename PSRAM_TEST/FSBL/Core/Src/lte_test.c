@@ -60,7 +60,8 @@ void lte_test(void){
 
 		/* Start reception of 1 byte on each UART */
 		HAL_UART_Receive_IT(&huart1, &rx1_byte, 1);
-		HAL_UART_Receive_IT(&huart3, &rx3_byte, 1);
+//		HAL_UART_Receive_IT(&huart3, &rx3_byte, 1);
+		HAL_UART_Receive_IT(&huart4, &rx3_byte, 1);
 
 		while(1){
 
@@ -142,11 +143,11 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
         // Restart reception
         HAL_UART_Receive_IT(&huart1, &rx1_byte, 1U);
-    }else if (huart->Instance == USART3){
+    }else if (huart->Instance == UART4){
         rb_put(rx3_byte);  // store byte safely
         //	sign of life
         //HAL_GPIO_TogglePin(GREEN_LED_GPIO_Port, GREEN_LED_Pin);
-        HAL_UART_Receive_IT(&huart3, &rx3_byte, 1); // restart RX
+        HAL_UART_Receive_IT(&huart4, &rx3_byte, 1); // restart RX
     }
 }
 

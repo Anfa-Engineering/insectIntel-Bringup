@@ -60,6 +60,7 @@ void DCMIPP_IRQHandler(void);
 void JPEG_IRQHandler(void);
 void USART1_IRQHandler(void);
 void USART3_IRQHandler(void);
+void UART4_IRQHandler(void);
 void XSPI1_IRQHandler(void);
 void SDMMC2_IRQHandler(void);
 void USB1_OTG_HS_IRQHandler(void);

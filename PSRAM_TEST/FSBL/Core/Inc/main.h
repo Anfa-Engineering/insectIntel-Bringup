@@ -192,8 +192,6 @@ extern void lte_test_usb(void);
 #define OCTOSPI_NCS_GPIO_Port GPION
 #define SWCLK_Pin GPIO_PIN_14
 #define SWCLK_GPIO_Port GPIOA
-#define UCPD1_VSENSE_Pin GPIO_PIN_11
-#define UCPD1_VSENSE_GPIO_Port GPIOA
 #define RED_LED_Pin GPIO_PIN_10
 #define RED_LED_GPIO_Port GPIOG
 #define OCTOSPI_IO5_Pin GPIO_PIN_9
