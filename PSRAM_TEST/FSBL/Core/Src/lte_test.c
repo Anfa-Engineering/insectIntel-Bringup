@@ -66,11 +66,11 @@ void lte_test(void){
 
 		while(1){
 
-		    if (huart4.gState == HAL_UART_STATE_READY && !rb_empty())
+		    if (huart1.gState == HAL_UART_STATE_READY && !rb_empty())
 		    {
 		        uint16_t len = rb_available();
 
-		        if( HAL_UART_Transmit_IT(&huart4,(uint8_t *)&usart3_buffer[usart3Tail],len) != HAL_OK){
+		        if( HAL_UART_Transmit_IT(&huart1,(uint8_t *)&usart3_buffer[usart3Tail],len) != HAL_OK){
 		        	Error_Handler();
 		        }else {
 					usart3Tail2 =  (usart3Tail + len) % RX_BUFFER_SIZE;
@@ -84,38 +84,44 @@ void lte_test(void){
 
 		    	changebauderate = 0;
 
-		    	char * atMainBaudrate_cfg = "AT+CBAUD=921600\r";
+		    	char * atMainBaudrate_cfg = "ATI\r";
 		    	hal_status = HAL_UART_Transmit(&huart3, (uint8_t *)atMainBaudrate_cfg, strlen(atMainBaudrate_cfg), 100U);
 		    	if (hal_status != HAL_OK) {
 		    	    Error_Handler();
 		    	}
 
-		    	//Wait for the okay signal
+//		    	//Wait for the okay signal
 		    	HAL_Delay(1000U);
 
 
-		    	hal_status = HAL_UART_DeInit(&huart3);
-		    	if (hal_status  != HAL_OK) {
-		    	    Error_Handler();
-		    	}
-
-		    	//Change the baudrate
-		    	huart3.Init.BaudRate = 921600U;
-
-		    	//Reinitilize
-		    	hal_status = HAL_UART_Init(&huart3);
+		    	char * atMainBaudrate_cfg1 = "AT\r";
+		    	hal_status = HAL_UART_Transmit(&huart3, (uint8_t *)atMainBaudrate_cfg1, strlen(atMainBaudrate_cfg1), 100U);
 		    	if (hal_status != HAL_OK) {
 		    	    Error_Handler();
 		    	}
 
-		    	HAL_NVIC_EnableIRQ(USART3_IRQn);
-		    	HAL_Delay(1000U);
-
-		    	hal_status = HAL_UART_Receive_IT(&huart3, &rx3_byte, 1U);
-
-		    	if (hal_status != HAL_OK) {
-		    	    Error_Handler();
-		    	}
+//		    	hal_status = HAL_UART_DeInit(&huart3);
+//		    	if (hal_status  != HAL_OK) {
+//		    	    Error_Handler();
+//		    	}
+//
+//		    	//Change the baudrate
+//		    	huart3.Init.BaudRate = 921600U;
+//
+//		    	//Reinitilize
+//		    	hal_status = HAL_UART_Init(&huart3);
+//		    	if (hal_status != HAL_OK) {
+//		    	    Error_Handler();
+//		    	}
+//
+//		    	HAL_NVIC_EnableIRQ(USART3_IRQn);
+//		    	HAL_Delay(1000U);
+//
+//		    	hal_status = HAL_UART_Receive_IT(&huart3, &rx3_byte, 1U);
+//
+//		    	if (hal_status != HAL_OK) {
+//		    	    Error_Handler();
+//		    	}
 
 		    }
 		}
