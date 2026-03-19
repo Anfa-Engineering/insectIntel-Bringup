@@ -4,6 +4,7 @@
 #ifdef PSRAM_TEST
 #define BUFFERSIZE                              1024 * 10U
 #define KByte                                   1024U * 1024U
+//#define KByte                                   1000U * 448U *4u
 #define MByte                                   32U
 
 uint8_t aTxBuffer[BUFFERSIZE];
@@ -39,6 +40,7 @@ void psram_test(void){
 //		   printf("%u, ",aTxBuffer[index]);
 
 		   *mem_addr = index;
+//		   *mem_addr = index_K;
 //		   printf("%u, ",*mem_addr);
 
 	   mem_addr++;
@@ -66,8 +68,10 @@ void psram_test(void){
 
 //			   if (*mem_addr != aTxBuffer[index])
 			   if (*mem_addr != (uint8_t)(index))
+//			   if (*mem_addr != index_K)
 			   {
-				  printf("%u -> %u*,",(uint8_t)(index), *mem_addr);
+					  printf("%u -> %u*,",(uint8_t)(index), *mem_addr);
+//					  printf("%u -> %u*,",index_K, *mem_addr);
 			//	  Error_Handler();
 				  errorBuffer++;
 			   }else {
