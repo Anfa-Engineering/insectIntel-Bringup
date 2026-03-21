@@ -1,104 +1,136 @@
 #include "main.h"
-#include  <stdio.h>
+#include <stdio.h>
+#include <stdint.h>
 
 #ifdef PSRAM_TEST
-#define BUFFERSIZE                              1024 * 10U
-#define KByte                                   1024U * 1024U
-//#define KByte                                   1000U * 448U *4u
-#define MByte                                   32U
 
-uint8_t aTxBuffer[BUFFERSIZE];
-__IO uint8_t *mem_addr;
+/* ===== CONFIG ===== */
+#define KB                  (1024U)
+#define MB                  (1024U * 1024U)
+#define PSRAM_SIZE_BYTES    (32U * MB)
 
-void psram_test(void){
-	uint32_t errorBuffer = 0;
-	uint32_t index, index_K;
+#define BASE_ADDR ((volatile uint8_t *)XSPI1_BASE)
 
-	/*fill aTxBuffer */
-//	for (index_K = 0; index_K < 10; index_K++)
-//	{
-//	 for (index = (index_K  * KByte); index < ((index_K +1) * KByte); index++)
-//	 {
-//	   aTxBuffer[index]=index + index_K;
-//	 }
-//	}
+/* ===== GLOBAL ===== */
+static uint32_t errorCount = 0;
 
-	printf("\r\n /* Writing Sequence ----------------------------------------------- */\r\n");
+/* ===== UTIL ===== */
+static void report_error(uint32_t addr, uint8_t expected, uint8_t actual) {
+    printf("ERR @0x%08lX: exp=0x%02X got=0x%02X\r\n", addr, expected, actual);
+    errorCount++;
+}
 
-	/* Writing Sequence ----------------------------------------------- */
-	index_K=0;
+/* =========================================================
+   1. ADDRESS LINE TEST
+   ========================================================= */
+static void psram_address_test(void) {
+    printf("\r\n[Address Test]\r\n\r\n\r\n");
 
-	for (index_K = 0; index_K < MByte; index_K++)
-	{
-	printf("\r\n\r\n Write-Seq %lu**\r\n\r\n", index_K);
+    uint32_t max_offset = PSRAM_SIZE_BYTES - 1;
 
-	 mem_addr = (uint8_t *)(XSPI1_BASE + (index_K * KByte));
-//	 mem_addr = (uint8_t *)(0x34200000+ (index_K * KByte));
-	 for (index = (index_K  * KByte); index < ((index_K +1) * KByte); index++)
-	 {
-//		   *mem_addr = aTxBuffer[index];
-//		   printf("%u, ",aTxBuffer[index]);
+    BASE_ADDR[0] = 0xAA;
 
-		   *mem_addr = index;
-//		   *mem_addr = index_K;
-//		   printf("%u, ",*mem_addr);
+    for (uint32_t offset = 1; offset <= max_offset; offset <<= 1) {
+        BASE_ADDR[offset] = 0x55;
 
-	   mem_addr++;
-	 }
+        printf("Testing address Line : 0x%08lX\r\n", offset);
 
-	 /* In memory-mapped mode, not possible to check if the memory is ready
-	 after the programming. So a delay corresponding to max page programming
-	 time is added */
-	 HAL_Delay(1);
-	}
+        if (BASE_ADDR[0] != 0xAA) {
+            printf("Address fault at offset: 0x%08lX\r\n", offset);
+            errorCount++;
+        }
+    }
 
-	printf("\r\n\r\n\r\n/* Reading Sequence ----------------------------------------------- */\r\n");
-	/* Reading Sequence ----------------------------------------------- */
-	index_K=0;
-	for (index_K = 0; index_K < MByte; index_K++)
-	{
-	 printf("\r\n \r\n");
+    HAL_Delay(1);
+}
 
-	 mem_addr = (uint8_t *)(XSPI1_BASE + (index_K * KByte));
-//	 mem_addr = (uint8_t *)(0x34200000 + (index_K * KByte));
-		printf("\r\n\r\n Read-Seq %lu**\r\n\r\n", index_K);
+/* =========================================================
+   2. WALKING BIT TEST (DATA LINES)
+   ========================================================= */
+static void psram_walking_bit_test(void) {
+    printf("\r\n[Walking Bit Test]\r\n\r\n\r\n");
 
-		 for (index = (index_K  * KByte); index < ((index_K +1) * KByte); index++)
-		 {
+    for (uint8_t bit = 0; bit < 8; bit++) {
 
-//			   if (*mem_addr != aTxBuffer[index])
-			   if (*mem_addr != (uint8_t)(index))
-//			   if (*mem_addr != index_K)
-			   {
-					  printf("%u -> %u*,",(uint8_t)(index), *mem_addr);
-//					  printf("%u -> %u*,",index_K, *mem_addr);
-			//	  Error_Handler();
-				  errorBuffer++;
-			   }else {
 
-//				   printf("%u, ",*mem_addr);
+        uint8_t pattern = (1 << bit);
+        printf(" \r\nTesting bit idx: %u", bit);
 
-			   }
+        printf("\r\n ---- normal pattern ---- \r\n\r\n");
 
-		   mem_addr++;
-		 }
+        for (uint32_t i = 0; i < PSRAM_SIZE_BYTES; i++) {
+            BASE_ADDR[i] = pattern;
+        }
 
-	  /* In memory-mapped mode, not possible to check if the memory is ready
-	 after the programming. So a delay corresponding to max page programming
-	 time is added */
-	 HAL_Delay(1);
-	}
-	if (errorBuffer == 0)
-	{
-	    printf("\r\n\r\n\r\nSuccess\r\n");
+        HAL_Delay(1);
 
-	 /* Turn GREEN on */
-	}else {
-		printf("\r\n\r\n\r\nFailure\r\n");
-		printf("\r\n\r\n\r\nError Reads: %lu\r\n", errorBuffer);
+        for (uint32_t i = 0; i < PSRAM_SIZE_BYTES; i++) {
+            if (BASE_ADDR[i] != pattern) {
+                report_error(i, pattern, BASE_ADDR[i]);
+            }
+        }
 
-	}
+        printf("\r\n ---- inverse pattern ----  \r\n\r\n");
 
+        pattern = ~(1 << bit);
+
+        for (uint32_t i = 0; i < PSRAM_SIZE_BYTES; i++) {
+            BASE_ADDR[i] = pattern;
+        }
+
+        HAL_Delay(1);
+
+        for (uint32_t i = 0; i < PSRAM_SIZE_BYTES; i++) {
+            if (BASE_ADDR[i] != pattern) {
+                report_error(i, pattern, BASE_ADDR[i]);
+            }
+        }
+    }
+}
+
+/* =========================================================
+   3. PATTERN TEST (IMPROVED)
+   ========================================================= */
+static void psram_pattern_test(void) {
+    printf("\r\n[Pattern Test]\r\n\r\n\r\n");
+
+    /* ---- write ---- */
+    for (uint32_t i = 0; i < PSRAM_SIZE_BYTES; i++) {
+        uint8_t pattern = (uint8_t)((i & 0xFF) ^ (i >> 8));
+        BASE_ADDR[i] = pattern;
+    }
+
+    HAL_Delay(1);
+
+    /* ---- read ---- */
+    for (uint32_t i = 0; i < PSRAM_SIZE_BYTES; i++) {
+        uint8_t expected = (uint8_t)((i & 0xFF) ^ (i >> 8));
+        uint8_t actual = BASE_ADDR[i];
+
+        if (actual != expected) {
+            report_error(i, expected, actual);
+        }
+    }
+}
+
+/* =========================================================
+   MAIN TEST ENTRY
+   ========================================================= */
+void psram_test(void) {
+
+    printf("\r\n==== PSRAM TEST START ====\r\n");
+
+    errorCount = 0;
+
+    psram_address_test();
+    psram_walking_bit_test();
+    psram_pattern_test();
+
+    if (errorCount == 0) {
+        printf("\r\n==== SUCCESS: NO ERRORS ====\r\n");
+    } else {
+        printf("\r\n==== FAIL: %lu ERRORS ====\r\n", errorCount);
+    }
 }
 
 #endif
