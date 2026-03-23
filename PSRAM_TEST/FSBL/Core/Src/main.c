@@ -29,6 +29,7 @@
 #include "xspi.h"
 #include "xspim.h"
 #include "gpio.h"
+#include "aps256xx.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -102,6 +103,7 @@ int main(void)
   MX_DCMIPP_Init();
   MX_XSPI2_Init();
   MX_XSPI1_Init();
+  APS256XX_Reset(&hxspi1);
   MX_JPEG_Init();
   MX_FileX_Init();
   MX_UART4_Init();

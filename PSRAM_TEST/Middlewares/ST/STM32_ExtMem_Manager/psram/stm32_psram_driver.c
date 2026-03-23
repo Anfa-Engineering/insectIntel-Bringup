@@ -268,6 +268,14 @@ EXTMEM_DRIVER_PSRAM_StatusTypeDef PSRAM_ExecuteCommand(EXTMEM_DRIVER_PSRAM_Objec
     retr = EXTMEM_DRIVER_PSRAM_ERROR_WRITEREG;
     goto error;
   }
+  if (HAL_OK != SAL_XSPI_Read(&PsramObject->psram_private.SALObject,
+                              PsramObject->psram_public.ReadREG,
+                              PsramObject->psram_public.config[Index].REGAddress,
+                              regval, PsramObject->psram_public.ReadREGSize))
+  {
+    retr = EXTMEM_DRIVER_PSRAM_ERROR_READREG;
+    goto error;
+  }
 
 error:
   return retr;
