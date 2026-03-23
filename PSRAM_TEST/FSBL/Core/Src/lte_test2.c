@@ -19,9 +19,9 @@
 #include <string.h>
 #include "usart.h"
 
-uint8_t changebauderate = 0U;
 
-#ifdef LTE_TEST_UART
+
+#ifdef LTE_TEST_UART3
 #define RX_BUFFER_SIZE 128U
 
 uint8_t rx1_byte;
@@ -34,43 +34,31 @@ volatile uint16_t usart3Head = 0;
 volatile uint16_t usart3Tail = 0;
 volatile uint16_t usart3Tail2 = 0;
 
+extern uint8_t changebauderate;
+
 //Circular buffer implementation function prototypes
 static uint8_t  rb_empty(void);
 static uint16_t rb_available(void);
 static void     rb_put(uint8_t b);
 
-void lte_test(void){
+void lte_test3(void){
 		//
 		MX_USART3_UART_Init();
 
-		//Power the LTE
-		HAL_GPIO_WritePin(LTE_PWR_EN_GPIO_Port, LTE_PWR_EN_Pin, GPIO_PIN_SET);
-		HAL_Delay(50U);
-		HAL_GPIO_WritePin(LTE_PWR_KEY_GPIO_Port, LTE_PWR_KEY_Pin, GPIO_PIN_SET);
-		HAL_Delay(2000U); // WAIT FOR 500MS BEFORE RELEASING
-		HAL_GPIO_WritePin(LTE_PWR_KEY_GPIO_Port, LTE_PWR_KEY_Pin, GPIO_PIN_RESET);
-
-//      HAL_GPIO_WritePin(LTE_DTR_GPIO_Port, LTE_DTR_Pin, GPIO_PIN_RESET);
-
-//		HAL_GPIO_WritePin(LTE_PWR_EN2_GPIO_Port, LTE_PWR_EN2_Pin, GPIO_PIN_SET);
-//		HAL_Delay(50U);
-//		HAL_GPIO_WritePin(LTE_PWR_KEY2_GPIO_Port, LTE_PWR_KEY2_Pin, GPIO_PIN_SET);
-//		HAL_Delay(2000U);
-//		HAL_GPIO_WritePin(LTE_DTR2_GPIO_Port, LTE_DTR2_Pin, GPIO_PIN_RESET);
 
 		/* Start reception of 1 byte on each UART */
-		HAL_UART_Receive_IT(&huart1, &rx1_byte, 1);
+//		HAL_UART_Receive_IT(&huart1, &rx1_byte, 1);
 //		HAL_UART_Receive_IT(&huart4, &rx1_byte, 1);
 		HAL_UART_Receive_IT(&huart3, &rx3_byte, 1);
 //		HAL_UART_Receive_IT(&huart4, &rx3_byte, 1);
 
 		while(1){
 
-		    if (huart1.gState == HAL_UART_STATE_READY && !rb_empty())
+		    if (huart3.gState == HAL_UART_STATE_READY && !rb_empty())
 		    {
 		        uint16_t len = rb_available();
 
-		        if( HAL_UART_Transmit_IT(&huart1,(uint8_t *)&usart3_buffer[usart3Tail],len) != HAL_OK){
+		        if( HAL_UART_Transmit_IT(&huart3,(uint8_t *)&usart3_buffer[usart3Tail],len) != HAL_OK){
 		        	Error_Handler();
 		        }else {
 					usart3Tail2 =  (usart3Tail + len) % RX_BUFFER_SIZE;
@@ -133,37 +121,21 @@ void lte_test(void){
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 
-    if (huart->Instance == USART1)
+    if (huart->Instance == USART3)
     {
-        // Store byte
-        usart1_buffer[usart1_index++] = rx1_byte;
-
-        // Check for carriage return
-        if (rx1_byte == '\r' || usart1_index == RX_BUFFER_SIZE - 1U)
-        {
-            // Transmit buffer to USART3
-            HAL_UART_Transmit_IT(&huart3, usart1_buffer, usart1_index);
-
-            // Reset buffer index
-            usart1_index = 0U;
-        }
-
-        // Restart reception
-        HAL_UART_Receive_IT(&huart1, &rx1_byte, 1);
-    }else if (huart->Instance == USART3){
         rb_put(rx3_byte);  // store byte safely
         //	sign of life
-        //HAL_GPIO_TogglePin(GREEN_LED_GPIO_Port, GREEN_LED_Pin);
-        HAL_UART_Receive_IT(&huart3, &rx3_byte, 1); // restart RX
+        HAL_GPIO_TogglePin(GREEN_LED_GPIO_Port, GREEN_LED_Pin);
+        HAL_UART_Receive_IT(&huart3, &rx3_byte, 1U); // restart RX
     }
 }
 
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
 
-    if (huart->Instance == USART1)
+    if (huart->Instance == USART3)
     {
-        HAL_GPIO_TogglePin(GREEN_LED_GPIO_Port, GREEN_LED_Pin);
+//        HAL_GPIO_TogglePin(GREEN_LED_GPIO_Port, GREEN_LED_Pin);
 
         uint16_t len = rb_available();
 
@@ -173,7 +145,7 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
         if (!rb_empty())
         {
             len = rb_available();
-            if( HAL_UART_Transmit_IT(&huart1,(uint8_t *)&usart3_buffer[usart3Tail],len) != HAL_OK){
+            if( HAL_UART_Transmit_IT(&huart3,(uint8_t *)&usart3_buffer[usart3Tail],len) != HAL_OK){
             	Error_Handler();
             }else {
     			usart3Tail2 =  (usart3Tail + len) % RX_BUFFER_SIZE;
@@ -181,7 +153,6 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
         }
     }
 }
-
 
 static inline uint8_t rb_empty(void)
 {

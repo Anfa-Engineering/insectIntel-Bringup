@@ -138,6 +138,10 @@ int main(void)
 	lte_test();
 	#endif
 
+	#ifdef LTE_TEST_UART3
+	lte_test3();
+	#endif
+
 	#ifdef LTE_TEST_USB
 	lte_test_usb();
 	#endif

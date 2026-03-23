@@ -50,6 +50,7 @@
 
 /* USER CODE BEGIN INCLUDE */
 
+
 /* USER CODE END INCLUDE */
 /* Private variables ---------------------------------------------------------*/
 extern XSPI_HandleTypeDef hxspi2;
@@ -69,6 +70,10 @@ enum {
 };
 
 /* USER CODE BEGIN EC */
+#include <stdio.h>
+#define EXTMEM_DEBUG_LEVEL 2
+#define EXTMEM_DRIVER_PSRAM_DEBUG_LEVEL 1
+#define EXTMEM_MACRO_DEBUG(x) printf("%s", x)
 
 /* USER CODE END EC */
 

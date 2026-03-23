@@ -95,6 +95,9 @@ typedef funcptr funcptr_NS;
 
 #define BUFFER_SIZE BUFFER_HEIGHT * PIXEL_PIPE_PITCH
 
+#define EXTMEM_DEBUG_LEVEL 2
+#define EXTMEM_MACRO_DEBUG(x) printf("%s", x)
+
 /* USER CODE END EM */
 
 /* Exported functions prototypes ---------------------------------------------*/
@@ -116,6 +119,14 @@ extern void cam_test(void);
 
 #ifdef LTE_TEST_UART
 extern void lte_test(void);
+#endif
+
+#ifdef LTE_TEST_UART3
+extern void lte_test3(void);
+#endif
+
+#ifdef LTE_TEST_UART2
+extern void lte_test2(void);
 #endif
 
 #ifdef LTE_TEST_USB
