@@ -12,12 +12,29 @@
 #define BASE_ADDR ((volatile uint8_t *)XSPI1_BASE)
 
 /* ===== GLOBAL ===== */
-static uint32_t errorCount = 0;
+static uint32_t errorCount1 = 0;
+static uint32_t errorCount0 = 0;
+static uint32_t errorCountP = 0;
 
 /* ===== UTIL ===== */
-static void report_error(uint32_t addr, uint8_t expected, uint8_t actual) {
-    printf("ERR @0x%08lX: exp=0x%02X got=0x%02X\r\n", addr, expected, actual);
-    errorCount++;
+static void report_error(uint32_t addr, uint8_t expected, uint8_t actual, uint8_t error) {
+    //printf("ERR @0x%08lX: exp=0x%02X got=0x%02X\r\n", addr, expected, actual);
+    switch (error) {
+		case 0:
+			errorCount0++;
+
+			break;
+		case 1:
+			errorCount1++;
+			break;
+		case 2:
+			errorCountP++;
+			break;
+		default:
+			Error_Handler();
+			break;
+	}
+//    errorCount++;
 }
 
 /* =========================================================
@@ -37,7 +54,7 @@ static void psram_address_test(void) {
 
         if (BASE_ADDR[0] != 0xAA) {
             printf("Address fault at offset: 0x%08lX\r\n", offset);
-            errorCount++;
+//            errorCount++;
         }
     }
 
@@ -66,7 +83,7 @@ static void psram_walking_bit_test(void) {
 
         for (uint32_t i = 0; i < PSRAM_SIZE_BYTES; i++) {
             if (BASE_ADDR[i] != pattern) {
-                report_error(i, pattern, BASE_ADDR[i]);
+                report_error(i, pattern, BASE_ADDR[i], 1U);
             }
         }
 
@@ -82,7 +99,7 @@ static void psram_walking_bit_test(void) {
 
         for (uint32_t i = 0; i < PSRAM_SIZE_BYTES; i++) {
             if (BASE_ADDR[i] != pattern) {
-                report_error(i, pattern, BASE_ADDR[i]);
+                report_error(i, pattern, BASE_ADDR[i], 0U);
             }
         }
     }
@@ -108,7 +125,7 @@ static void psram_pattern_test(void) {
         uint8_t actual = BASE_ADDR[i];
 
         if (actual != expected) {
-            report_error(i, expected, actual);
+            report_error(i, expected, actual, 2U);
         }
     }
 }
@@ -120,16 +137,21 @@ void psram_test(void) {
 
     printf("\r\n==== PSRAM TEST START ====\r\n");
 
-    errorCount = 0;
+    errorCount0 = 0;
+    errorCount1 = 0;
+    errorCountP = 0;
+
+
 
     psram_address_test();
     psram_walking_bit_test();
     psram_pattern_test();
 
-    if (errorCount == 0) {
-        printf("\r\n==== SUCCESS: NO ERRORS ====\r\n");
+    if (errorCount0 || errorCount1 || errorCountP) {
+        printf("\r\n==== FAIL ====\r\n %lu BIT 1 ERRORS \r\n %lu BIT 0 ERRORS \r\n %lu PATTERN ERRORS \r\n", errorCount1, errorCount0, errorCountP);
+
     } else {
-        printf("\r\n==== FAIL: %lu ERRORS ====\r\n", errorCount);
+        printf("\r\n==== SUCCESS: NO ERRORS ====\r\n");
     }
 }
 
