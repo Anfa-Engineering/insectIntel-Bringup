@@ -50,6 +50,8 @@ void lte_test(void){
 		HAL_Delay(2000U); // WAIT FOR 500MS BEFORE RELEASING
 		HAL_GPIO_WritePin(LTE_PWR_KEY_GPIO_Port, LTE_PWR_KEY_Pin, GPIO_PIN_RESET);
 
+		HAL_GPIO_DeInit(LTE_DTR_GPIO_Port, &GPIO_InitStruct);
+
 		/*Configure GPIO pin : LTE_DTR_Pin AND Set it to low*/
 		GPIO_InitTypeDef GPIO_InitStruct = {0};
 		GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
