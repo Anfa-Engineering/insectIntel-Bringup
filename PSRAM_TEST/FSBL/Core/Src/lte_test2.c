@@ -123,6 +123,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
             // Reset buffer index
             usart1_index = 0U;
         }
+        // Restart reception
+        HAL_UART_Receive_IT(&huart3, &rx1_byte, 1);
 
     }
 }

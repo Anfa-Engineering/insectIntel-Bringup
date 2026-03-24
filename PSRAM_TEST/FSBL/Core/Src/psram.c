@@ -18,7 +18,7 @@ static uint32_t errorCountP = 0;
 
 /* ===== UTIL ===== */
 static void report_error(uint32_t addr, uint8_t expected, uint8_t actual, uint8_t error) {
-    //printf("ERR @0x%08lX: exp=0x%02X got=0x%02X\r\n", addr, expected, actual);
+    printf("ERR @0x%08lX: exp=0x%02X got=0x%02X\r\n", addr, expected, actual);
     switch (error) {
 		case 0:
 			errorCount0++;
