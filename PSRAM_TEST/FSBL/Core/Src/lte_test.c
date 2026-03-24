@@ -50,7 +50,13 @@ void lte_test(void){
 		HAL_Delay(2000U); // WAIT FOR 500MS BEFORE RELEASING
 		HAL_GPIO_WritePin(LTE_PWR_KEY_GPIO_Port, LTE_PWR_KEY_Pin, GPIO_PIN_RESET);
 
-//      HAL_GPIO_WritePin(LTE_DTR_GPIO_Port, LTE_DTR_Pin, GPIO_PIN_RESET);
+		/*Configure GPIO pin : LTE_DTR_Pin AND Set it to low*/
+		GPIO_InitTypeDef GPIO_InitStruct = {0};
+		GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+		GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+		GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+		HAL_GPIO_Init(LTE_DTR_GPIO_Port, &GPIO_InitStruct);
+        HAL_GPIO_WritePin(LTE_DTR_GPIO_Port, LTE_DTR_Pin, GPIO_PIN_RESET);
 
 //		HAL_GPIO_WritePin(LTE_PWR_EN2_GPIO_Port, LTE_PWR_EN2_Pin, GPIO_PIN_SET);
 //		HAL_Delay(50U);
@@ -84,7 +90,7 @@ void lte_test(void){
 
 		    	changebauderate = 0;
 
-		    	char * atMainBaudrate_cfg = "ATI\r";
+		    	char * atMainBaudrate_cfg = "AT+QCFG=\"urc/ri/ring\",\"off\"\r";
 		    	hal_status = HAL_UART_Transmit(&huart3, (uint8_t *)atMainBaudrate_cfg, strlen(atMainBaudrate_cfg), 100U);
 		    	if (hal_status != HAL_OK) {
 		    	    Error_Handler();
