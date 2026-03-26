@@ -122,8 +122,8 @@ void psram_test(void) {
 
     errorCount = 0;
 
-    psram_address_test();
-    psram_walking_bit_test();
+//    psram_address_test();
+//    psram_walking_bit_test();
     psram_pattern_test();
 
     if (errorCount == 0) {

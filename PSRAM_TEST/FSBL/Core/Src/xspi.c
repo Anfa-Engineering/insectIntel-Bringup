@@ -54,7 +54,7 @@ void MX_XSPI1_Init(void)
   hxspi1.Init.DelayHoldQuarterCycle = HAL_XSPI_DHQC_DISABLE;
   hxspi1.Init.ChipSelectBoundary = HAL_XSPI_BONDARYOF_16KB;
   hxspi1.Init.MaxTran = 0;
-  hxspi1.Init.Refresh = 0;
+  hxspi1.Init.Refresh = 99;
   hxspi1.Init.MemorySelect = HAL_XSPI_CSSEL_NCS1;
   if (HAL_XSPI_Init(&hxspi1) != HAL_OK)
   {
