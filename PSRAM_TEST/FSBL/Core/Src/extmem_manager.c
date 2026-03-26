@@ -101,9 +101,11 @@ void MX_EXTMEM_MANAGER_Init(void)
 
   extmem_list_config[1].PsramObject.psram_public.config[1].WriteMask = 0x1Cu;
   extmem_list_config[1].PsramObject.psram_public.config[1].WriteValue = 0x00u;
+  extmem_list_config[1].PsramObject.psram_public.config[1].WriteValue = 0x00u;
   extmem_list_config[1].PsramObject.psram_public.config[1].REGAddress = 0x00u;
 
   extmem_list_config[1].PsramObject.psram_public.config[2].WriteMask = 0xE0u;
+  extmem_list_config[1].PsramObject.psram_public.config[2].WriteValue = 0x00u;
   extmem_list_config[1].PsramObject.psram_public.config[2].WriteValue = 0x00u;
   extmem_list_config[1].PsramObject.psram_public.config[2].REGAddress = 0x04u;
 
